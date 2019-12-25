@@ -1,10 +1,7 @@
-/* MAIN.C file
- * 
- * Copyright (c) 2002-2005 STMicroelectronics
- */
-
 #include "stm8s.h"
 #include "main.h"
+#include <stdbool.h>
+
 /*
 PA1	ADC
 PB4	I2C SCL
@@ -16,27 +13,6 @@ PD5	ADDR2
 */
 
 //TODO: Set up i2c
-//TODO: Set up ADC clock to 2 MHz and set for continuous bufferred mode
-//TODO: Implement ADC noise and averaging
-
-#define LED_port GPIOD
-#define LED_pin GPIO_PIN_3
-
-#define ADDR_port GPIOD
-#define ADDR_pin_1 GPIO_PIN_4
-#define ADDR_pin_2 GPIO_PIN_5
-
-#define ADC_port GPIOD
-#define ADC_pin GPIO_PIN_6
-
-#define LED_ONCE				0xC000
-
-#define LED_PANIC 			0x2AAA
-#define LED_ON 					0x3FFF
-#define LED_OFF					0x0000
-#define	LED_BLIP				0x0001
-#define LED_BLINK				0x007F
-#define LED_SLOW_FLASH	0x03FE
 
 void init(void);
 void clock_setup(void);
@@ -45,8 +21,9 @@ void ADC_setup(void);
 void I2C_setup(uint16_t address);
 void TIM2_setup(void);
 void Delay (uint16_t nCount);
+void HandleADC(void);
+void HandleTimerTick(void);
 
-unsigned int phRaw = 0;
 volatile uint8_t state = 0;
 struct led_state
 {
@@ -54,7 +31,12 @@ struct led_state
 	uint16_t pattern;
 } led;
 
-uint16_t adcValues[32];
+#define BUFFER_SIZE 32
+uint16_t adcValues[BUFFER_SIZE];
+uint8_t idxBuffer = 0;
+bool bufferEmpty = true;
+
+uint32_t averagedValue = 0;
 
 main()
 {
@@ -65,77 +47,28 @@ main()
 	wfi(); //wait for interrupts
 	while (1)
 	{
-		
 		while (state > 0)
 		{
 			//Check ADC State
 			if (state & STATE_ADC_READY)
 			{
-				uint32_t averageValue = 0;
-				uint8_t x = 0;
-				for(x = 0; x < 8; x++)
-				{
-					adcValues[x] = ADC1_GetBufferValue(x) << 2;
-					averageValue += adcValues[x];
-				}
-				
-				averageValue = averageValue >> 3;
-				
-				state &= ~(STATE_ADC_READY);
+				HandleADC();				
 			}
 			
 			//Check I2C State
 			if (state & STATE_I2C_READY)
-			{
-				
+			{				
 				state &= ~(STATE_I2C_READY);
 			}
 			
 			//Check TMR State
 			if (state & STATE_TMR_TICK)
 			{
-				
-				if (led.pattern & (1 << led.ctr))
-				{
-					GPIO_WriteLow(LED_port, LED_pin);
-				}
-				else
-				{
-					GPIO_WriteHigh(LED_port, LED_pin);					
-				}
-				
-				led.ctr++;
-				if(led.ctr >=14)
-				{
-					if (led.pattern & (1 << led.ctr))
-					{
-						led.pattern = LED_OFF;
-					}
-					led.ctr = 0;					
-				}
-				
-				state &= ~(STATE_TMR_TICK);
-			}
-			
-			//Check LED State
-			if (state & STATE_LED_TICK)
-			{
-				
-				state &= ~(STATE_LED_TICK);
+				HandleTimerTick();				
 			}
 		}
-		wfi();
 		
-		/*
-		ADC1_StartConversion();
-		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
-		phRaw = ADC1_GetConversionValue();
-		ADC1_ClearFlag(ADC1_FLAG_EOC);
-			 
-		GPIO_WriteReverse(LED_port, LED_pin);
-		GPIO_WriteHigh(LED_port, LED_pin);
-		Delay(100000);
-		*/
+		wfi();
 	}
 }
 
@@ -226,7 +159,6 @@ void ADC_setup()
              DISABLE);
 	ADC1_DataBufferCmd(ENABLE);
 	ADC1_ITConfig(ADC1_IT_EOCIE, ENABLE);
-	//TODO: Enable interrupt and respond to it	
 	ADC1_Cmd(ENABLE);
 }
 
@@ -254,4 +186,68 @@ void TIM2_setup(void)
     TIM2_TimeBaseInit(TIM2_PRESCALER_16, 32000);
 		TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
     TIM2_Cmd(ENABLE);
+}
+
+void HandleADC()
+{
+	uint8_t x = 0;
+				
+	//Sum the values into the buffer
+	adcValues[idxBuffer] = 0;
+	for(x = 0; x < 8; x++)
+	{
+		adcValues[idxBuffer] += (ADC1_GetBufferValue(x) << 2);
+	}
+	
+	//Fill up the buffer with the first value 
+	//so averaging isn't skewed toward 0.  
+	if(bufferEmpty)
+	{
+		bufferEmpty = false;
+		for(x = 1; x < BUFFER_SIZE; x++)
+		{
+			adcValues[x] = adcValues[0];
+		}
+	}
+	
+	//Average the readings in the buffer
+	averagedValue = 0;
+	for(x = 0; x < BUFFER_SIZE; x++)
+	{
+		averagedValue += adcValues[x];
+	}
+	averagedValue = averagedValue / (BUFFER_SIZE * 8);
+	
+	//Increment buffer and roll over to 0 if > 31
+	idxBuffer++;
+	if (idxBuffer > 31)
+	{
+		idxBuffer = 0;
+	}
+	
+	state &= ~(STATE_ADC_READY);
+}
+
+void HandleTimerTick()
+{
+	if (led.pattern & (1 << led.ctr))
+	{
+		GPIO_WriteLow(LED_port, LED_pin);
+	}
+	else
+	{
+		GPIO_WriteHigh(LED_port, LED_pin);					
+	}
+	
+	led.ctr++;
+	if(led.ctr >=14)
+	{
+		if (led.pattern & (1 << led.ctr))
+		{
+			led.pattern = LED_OFF;
+		}
+		led.ctr = 0;					
+	}
+	
+	state &= ~(STATE_TMR_TICK);	
 }
