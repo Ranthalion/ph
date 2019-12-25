@@ -30,8 +30,8 @@ L Amplifier_Operational:LTC6081xMS8 U4
 U 1 1 5DF420AE
 P 6700 1850
 F 0 "U4" H 6700 2217 50  0000 C CNN
-F 1 "LTC6081xMS8" H 6700 2126 50  0000 C CNN
-F 2 "Package_SO:SO-8_5.3x6.2mm_P1.27mm" H 6700 1850 50  0001 C CNN
+F 1 "LMC662xMS8" H 6700 2126 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 6700 1850 50  0001 C CNN
 F 3 "http://cds.linear.com/docs/en/datasheet/60812fd.pdf" H 6700 1850 50  0001 C CNN
 	1    6700 1850
 	1    0    0    -1  
@@ -41,8 +41,8 @@ L Amplifier_Operational:LTC6081xMS8 U4
 U 3 1 5DF4215E
 P 6700 1850
 F 0 "U4" H 6658 1896 50  0000 L CNN
-F 1 "LTC6081xMS8" H 6658 1805 50  0000 L CNN
-F 2 "Package_SO:SO-8_5.3x6.2mm_P1.27mm" H 6700 1850 50  0001 C CNN
+F 1 "LMC662xMS8" H 6658 1805 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 6700 1850 50  0001 C CNN
 F 3 "http://cds.linear.com/docs/en/datasheet/60812fd.pdf" H 6700 1850 50  0001 C CNN
 	3    6700 1850
 	1    0    0    -1  
@@ -360,28 +360,28 @@ Wire Wire Line
 $Comp
 L power:+5VD #PWR0115
 U 1 1 5DF4A55D
-P 4250 5350
-F 0 "#PWR0115" H 4250 5200 50  0001 C CNN
-F 1 "+5VD" H 4265 5523 50  0000 C CNN
-F 2 "" H 4250 5350 50  0001 C CNN
-F 3 "" H 4250 5350 50  0001 C CNN
-	1    4250 5350
-	1    0    0    -1  
+P 4150 5700
+F 0 "#PWR0115" H 4150 5550 50  0001 C CNN
+F 1 "+5VD" H 4165 5873 50  0000 C CNN
+F 2 "" H 4150 5700 50  0001 C CNN
+F 3 "" H 4150 5700 50  0001 C CNN
+	1    4150 5700
+	-1   0    0    1   
 $EndComp
 $Comp
 L power:GNDD #PWR0116
 U 1 1 5DF4A586
-P 4250 5750
-F 0 "#PWR0116" H 4250 5500 50  0001 C CNN
-F 1 "GNDD" H 4254 5595 50  0000 C CNN
-F 2 "" H 4250 5750 50  0001 C CNN
-F 3 "" H 4250 5750 50  0001 C CNN
-	1    4250 5750
+P 4350 5550
+F 0 "#PWR0116" H 4350 5300 50  0001 C CNN
+F 1 "GNDD" H 4354 5395 50  0000 C CNN
+F 2 "" H 4350 5550 50  0001 C CNN
+F 3 "" H 4350 5550 50  0001 C CNN
+	1    4350 5550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	3950 5400 4150 5400
-Text Label 4150 5700 2    50   ~ 0
+Text Label 4150 5600 2    50   ~ 0
 SWIM
 Wire Wire Line
 	5800 3350 6100 3350
@@ -455,7 +455,7 @@ L Device:R_Small_US R6
 U 1 1 5DF55696
 P 8000 1550
 F 0 "R6" V 7795 1550 50  0000 C CNN
-F 1 "1k" V 7886 1550 50  0000 C CNN
+F 1 "4.7k" V 7886 1550 50  0000 C CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" H 8000 1550 50  0001 C CNN
 F 3 "~" H 8000 1550 50  0001 C CNN
 	1    8000 1550
@@ -471,8 +471,8 @@ L Amplifier_Operational:LTC6081xMS8 U4
 U 2 1 5DF4211B
 P 8050 1950
 F 0 "U4" H 8050 2317 50  0000 C CNN
-F 1 "LTC6081xMS8" H 8050 2226 50  0000 C CNN
-F 2 "Package_SO:SO-8_5.3x6.2mm_P1.27mm" H 8050 1950 50  0001 C CNN
+F 1 "LMC662xMS8" H 8050 2226 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 8050 1950 50  0001 C CNN
 F 3 "http://cds.linear.com/docs/en/datasheet/60812fd.pdf" H 8050 1950 50  0001 C CNN
 	2    8050 1950
 	1    0    0    1   
@@ -779,7 +779,7 @@ Wire Wire Line
 Wire Wire Line
 	2550 1850 2550 1800
 Connection ~ 2550 1800
-Text Label 4900 3900 0    50   ~ 0
+Text Label 6650 4800 2    50   ~ 0
 Aout
 $Comp
 L Device:R_Small_US R8
@@ -851,11 +851,9 @@ Wire Wire Line
 NoConn ~ 6400 4400
 NoConn ~ 5200 4600
 NoConn ~ 5200 4700
-NoConn ~ 5200 4800
 NoConn ~ 5200 4900
 NoConn ~ 5200 5000
 NoConn ~ 5200 4000
-NoConn ~ 6400 4800
 NoConn ~ 5200 4100
 Wire Wire Line
 	5200 4300 4800 4300
@@ -942,8 +940,6 @@ Text Label 6650 4600 2    50   ~ 0
 ADDR1
 Text Label 6650 4700 2    50   ~ 0
 ADDR2
-Wire Wire Line
-	5200 3900 4900 3900
 $Comp
 L power:GNDD #PWR0124
 U 1 1 5DFDB8E5
@@ -979,10 +975,6 @@ F 3 "~" H 8900 1950 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	9250 1950 9000 1950
-Wire Wire Line
-	4250 5500 4250 5350
-Wire Wire Line
-	3950 5500 4250 5500
 Wire Wire Line
 	4250 5600 4250 5750
 Wire Wire Line
@@ -1119,4 +1111,41 @@ Wire Wire Line
 	3200 1500 3500 1500
 Text Notes 3050 1150 0    50   ~ 0
 RFM-0505S requires a minimum \ncurrent draw, so these resistors \nallow some wiggle room
+NoConn ~ 5200 4800
+Wire Wire Line
+	6400 4800 6650 4800
+$Comp
+L Device:R_Small_US R13
+U 1 1 5E0333DE
+P 5050 3900
+F 0 "R13" H 5118 3946 50  0000 L CNN
+F 1 "1.5k" H 5118 3855 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5050 3900 50  0001 C CNN
+F 3 "~" H 5050 3900 50  0001 C CNN
+	1    5050 3900
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C_Small C11
+U 1 1 5E033499
+P 4800 3900
+F 0 "C11" H 4892 3946 50  0000 L CNN
+F 1 "0.1uF" H 4892 3855 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 4800 3900 50  0001 C CNN
+F 3 "~" H 4800 3900 50  0001 C CNN
+	1    4800 3900
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5150 3900 5200 3900
+Wire Wire Line
+	4950 3900 4900 3900
+Wire Wire Line
+	4700 3900 4500 3900
+Text Label 4500 3900 0    50   ~ 0
+Aout
+Wire Wire Line
+	4350 5500 4350 5550
+Wire Wire Line
+	3950 5500 4350 5500
 $EndSCHEMATC
