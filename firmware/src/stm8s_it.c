@@ -28,23 +28,355 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s_it.h"
 #include "main.h"
-/** @addtogroup I2C_TwoBoards
-  * @{
-  */
+#include "led.h"
 
-/** @addtogroup I2C_DataExchange
-  * @{
-  */
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
 __IO uint8_t Slave_Buffer_Rx[8];
 __IO uint8_t Tx_Idx = 0, Rx_Idx = 0;
 __IO uint16_t Event = 0x00;
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-/* Public functions ----------------------------------------------------------*/
+uint8_t reg = 0;
+
+__IO uint8_t modeBuffer[64];
+__IO uint8_t idxMode=0;
+
+#if defined(STM8S207) || defined(STM8S007) || defined(STM8S208) || defined (STM8AF52Ax) || defined (STM8AF62Ax)
+/**
+  * @brief  ADC2 interrupt routine.
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(ADC2_IRQHandler, 22)
+{
+    /* In order to detect unexpected events during development,
+       it is recommended to set a breakpoint on the following instruction.
+    */
+}
+#else /*STM8S105, STM8S103 or STM8S903 or STM8AF626x */
+/**
+  * @brief  ADC1 interrupt routine.
+  * @param  None
+  * @retval None
+  */
+ INTERRUPT_HANDLER(ADC1_IRQHandler, 22)
+{
+    /* In order to detect unexpected events during development,
+       it is recommended to set a breakpoint on the following instruction.
+    */
+	//TODO: [ML] Handle the ADC interrupt
+	state |= STATE_ADC_READY;
+	ADC1_ClearFlag(ADC1_FLAG_EOC);
+}
+#endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
+
+#ifdef STM8S903
+/**
+  * @brief  Timer5 Update/Overflow/Break/Trigger Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(TIM5_UPD_OVF_BRK_TRG_IRQHandler, 13)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+/**
+  * @brief  Timer5 Capture/Compare Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(TIM5_CAP_COM_IRQHandler, 14)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+
+#else /*STM8S208, STM8S207, STM8S105 or STM8S103 or STM8S001 or STM8AF62Ax or STM8AF52Ax or STM8AF626x */
+/**
+  * @brief  Timer2 Update/Overflow/Break Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
+{
+	TIM2_ClearFlag(TIM2_FLAG_UPDATE);
+	state |= STATE_TMR_TICK;	
+}
+
+
+/**
+  * @brief  I2C Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+INTERRUPT_HANDLER(I2C_IRQHandler, 19)
+{
+  /* Read SR2 register to get I2C error */
+	reg = I2C->SR2;
+	
+  if ((reg) != 0)
+  {
+    /* Clears SR2 register */
+		I2C->CR2|= I2C_CR2_STOP;  // stop communication - release the lines
+    I2C->SR2 = 0;
+		//NACK (0x04) is expected in transmit mode when master is done
+		if (reg != 0x04)
+		{
+			SetLED(LED_PANIC, 1);
+		}
+		if (reg & 0x04)
+		{
+			I2C->SR2 &= ~I2C_SR2_AF;	  // clear AF
+			modeBuffer[idxMode++] = 9;
+			idxMode = idxMode & 0x3F;
+		}
+
+  }
+  Event = I2C_GetLastEvent();
+  switch (Event)
+  {
+      /******* Slave transmitter ******/
+      /* check on EV1 */
+    case I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED:
+      Tx_Idx = 1;
+			modeBuffer[idxMode++] = 1;
+			idxMode = idxMode & 0x3F;
+      break;
+
+      /* check on EV3 */
+    case I2C_EVENT_SLAVE_BYTE_TRANSMITTING:
+      /* Transmit data */
+			modeBuffer[idxMode++] = 2;
+			idxMode = idxMode & 0x3F;
+      I2C_SendData(0x00);
+			/*Tx_Idx--;
+			if (Tx_Idx <= 0)
+			{
+				Tx_Idx = 0;
+			}
+			*/
+      break;
+      /******* Slave receiver **********/
+      /* check on EV1*/
+    case I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED:
+			modeBuffer[idxMode++] = 3;
+			idxMode = idxMode & 0x3F;
+      break;
+
+      /* Check on EV2*/
+    case I2C_EVENT_SLAVE_BYTE_RECEIVED:
+			modeBuffer[idxMode++] = 4;
+			idxMode = idxMode & 0x3F;
+      Slave_Buffer_Rx[Rx_Idx++] = I2C_ReceiveData();
+			modeBuffer[idxMode++] = 4;
+			idxMode = idxMode & 0x3F;
+			if (Rx_Idx >= 8)
+			{
+				Rx_Idx = 0;
+			}
+			
+      break;
+
+      /* Check on EV4 */
+    case (I2C_EVENT_SLAVE_STOP_DETECTED):
+			modeBuffer[idxMode++] = 5;
+			idxMode = idxMode & 0x3F;
+			/* write to CR2 to clear STOPF flag */
+			I2C->CR2 |= I2C_CR2_ACK;
+			//SetLED(LED_BLINK, 2);
+			//TODO: [ML] Notify main app that full command received
+      break;
+
+		case (I2C_EVENT_SLAVE_ACK_FAILURE):
+			modeBuffer[idxMode++] = 6;
+			idxMode = idxMode & 0x3F;
+			SetLED(LED_PANIC, 2);
+			//TODO: [ML] What do I do here?
+			break;
+    default:
+			//modeBuffer[idxMode++] = 7;
+			//idxMode = idxMode & 0x0F;
+      break;
+  }
+	
+}
+
+
+/**
+  * @brief  Timer2 Capture/Compare Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(TIM2_CAP_COM_IRQHandler, 14)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+#endif /*STM8S903*/
+
+#if defined(STM8S208) || defined(STM8S207) || defined(STM8S007) || defined(STM8S105) || \
+    defined(STM8S005) || defined(STM8AF62Ax) || defined(STM8AF52Ax) || defined(STM8AF626x)
+/**
+  * @brief  Timer3 Update/Overflow/Break Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+
+/**
+  * @brief  Timer3 Capture/Compare Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler, 16)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+#endif /*STM8S208, STM8S207 or STM8S105 or STM8AF62Ax or STM8AF52Ax or STM8AF626x */
+
+#if defined(STM8S208) || defined(STM8S207) || defined(STM8S007) || defined(STM8S103) || \
+    defined(STM8S003) || defined(STM8S001) || defined(STM8AF62Ax) || defined(STM8AF52Ax) || defined(STM8S903)
+/**
+  * @brief  UART1 TX Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(UART1_TX_IRQHandler, 17)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+
+/**
+  * @brief  UART1 RX Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(UART1_RX_IRQHandler, 18)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+#endif /*STM8S208, STM8S207 or STM8S103 or STM8AF62Ax or STM8AF52Ax or STM8S903 */
+
+
+#if defined(STM8S105) || defined(STM8S005) ||  defined (STM8AF626x)
+/**
+  * @brief  UART2 TX interrupt routine.
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(UART2_TX_IRQHandler, 20)
+{
+    /* In order to detect unexpected events during development,
+       it is recommended to set a breakpoint on the following instruction.
+    */
+}
+
+/**
+  * @brief  UART2 RX interrupt routine.
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(UART2_RX_IRQHandler, 21)
+{
+    /* In order to detect unexpected events during development,
+       it is recommended to set a breakpoint on the following instruction.
+    */
+}
+#endif /* STM8S105*/
+
+#if defined(STM8S207) || defined(STM8S007) || defined(STM8S208) || defined (STM8AF52Ax) || defined (STM8AF62Ax)
+/**
+  * @brief  UART3 TX interrupt routine.
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(UART3_TX_IRQHandler, 20)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+
+/**
+  * @brief  UART3 RX interrupt routine.
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(UART3_RX_IRQHandler, 21)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+#endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
+
+
+#ifdef STM8S903
+/**
+  * @brief  Timer6 Update/Overflow/Trigger Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+INTERRUPT_HANDLER(TIM6_UPD_OVF_TRG_IRQHandler, 23)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+#else /*STM8S208, STM8S207, STM8S105 or STM8S103 or STM8S001 or STM8AF62Ax or STM8AF52Ax or STM8AF626x */
+/**
+  * @brief  Timer4 Update/Overflow Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+ INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 23)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
+#endif /*STM8S903*/
+
+/**
+  * @brief  Eeprom EEC Interrupt routine
+  * @param None
+  * @retval
+	* None
+  */
+INTERRUPT_HANDLER(EEPROM_EEC_IRQHandler, 24)
+{
+  /* In order to detect unexpected events during development,
+     it is recommended to set a breakpoint on the following instruction.
+  */
+}
 
 #ifdef _COSMIC_
 /**
@@ -269,309 +601,5 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   */
 }
 
-#ifdef STM8S903
-/**
-  * @brief  Timer5 Update/Overflow/Break/Trigger Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(TIM5_UPD_OVF_BRK_TRG_IRQHandler, 13)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-/**
-  * @brief  Timer5 Capture/Compare Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(TIM5_CAP_COM_IRQHandler, 14)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
 
-#else /*STM8S208, STM8S207, STM8S105 or STM8S103 or STM8S001 or STM8AF62Ax or STM8AF52Ax or STM8AF626x */
-/**
-  * @brief  Timer2 Update/Overflow/Break Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-	//TODO: [ML] Do I have to clear a flag?
-	state |= STATE_TMR_TICK;
-	TIM2_ClearFlag(TIM2_FLAG_UPDATE);
-}
-
-/**
-  * @brief  Timer2 Capture/Compare Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(TIM2_CAP_COM_IRQHandler, 14)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-#endif /*STM8S903*/
-
-#if defined(STM8S208) || defined(STM8S207) || defined(STM8S007) || defined(STM8S105) || \
-    defined(STM8S005) || defined(STM8AF62Ax) || defined(STM8AF52Ax) || defined(STM8AF626x)
-/**
-  * @brief  Timer3 Update/Overflow/Break Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-
-/**
-  * @brief  Timer3 Capture/Compare Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler, 16)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-#endif /*STM8S208, STM8S207 or STM8S105 or STM8AF62Ax or STM8AF52Ax or STM8AF626x */
-
-#if defined(STM8S208) || defined(STM8S207) || defined(STM8S007) || defined(STM8S103) || \
-    defined(STM8S003) || defined(STM8S001) || defined(STM8AF62Ax) || defined(STM8AF52Ax) || defined(STM8S903)
-/**
-  * @brief  UART1 TX Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(UART1_TX_IRQHandler, 17)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-
-/**
-  * @brief  UART1 RX Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(UART1_RX_IRQHandler, 18)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-#endif /*STM8S208, STM8S207 or STM8S103 or STM8AF62Ax or STM8AF52Ax or STM8S903 */
-
-/**
-  * @brief  I2C Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
-INTERRUPT_HANDLER(I2C_IRQHandler, 19)
-{
-  /* Read SR2 register to get I2C error */
-  if ((I2C->SR2) != 0)
-  {
-    /* Clears SR2 register */
-    I2C->SR2 = 0;
-
-    /* Set LED2 */
-    //STM_EVAL_LEDOn(LED2);
-		//TODO: [ML] Indicate some kind of error
-
-  }
-  Event = I2C_GetLastEvent();
-  switch (Event)
-  {
-      /******* Slave transmitter ******/
-      /* check on EV1 */
-    case I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED:
-      Tx_Idx = 0;
-      break;
-
-      /* check on EV3 */
-    case I2C_EVENT_SLAVE_BYTE_TRANSMITTING:
-      /* Transmit data */
-      I2C_SendData(Slave_Buffer_Rx[Tx_Idx++]);
-      break;
-      /******* Slave receiver **********/
-      /* check on EV1*/
-    case I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED:
-      break;
-
-      /* Check on EV2*/
-    case I2C_EVENT_SLAVE_BYTE_RECEIVED:
-      Slave_Buffer_Rx[Rx_Idx++] = I2C_ReceiveData();
-      break;
-
-      /* Check on EV4 */
-    case (I2C_EVENT_SLAVE_STOP_DETECTED):
-            /* write to CR2 to clear STOPF flag */
-            I2C->CR2 |= I2C_CR2_ACK;
-      break;
-
-    default:
-      break;
-  }
-
-}
-
-#if defined(STM8S105) || defined(STM8S005) ||  defined (STM8AF626x)
-/**
-  * @brief  UART2 TX interrupt routine.
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(UART2_TX_IRQHandler, 20)
-{
-    /* In order to detect unexpected events during development,
-       it is recommended to set a breakpoint on the following instruction.
-    */
-}
-
-/**
-  * @brief  UART2 RX interrupt routine.
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(UART2_RX_IRQHandler, 21)
-{
-    /* In order to detect unexpected events during development,
-       it is recommended to set a breakpoint on the following instruction.
-    */
-}
-#endif /* STM8S105*/
-
-#if defined(STM8S207) || defined(STM8S007) || defined(STM8S208) || defined (STM8AF52Ax) || defined (STM8AF62Ax)
-/**
-  * @brief  UART3 TX interrupt routine.
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(UART3_TX_IRQHandler, 20)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-
-/**
-  * @brief  UART3 RX interrupt routine.
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(UART3_RX_IRQHandler, 21)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-#endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
-
-#if defined(STM8S207) || defined(STM8S007) || defined(STM8S208) || defined (STM8AF52Ax) || defined (STM8AF62Ax)
-/**
-  * @brief  ADC2 interrupt routine.
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(ADC2_IRQHandler, 22)
-{
-    /* In order to detect unexpected events during development,
-       it is recommended to set a breakpoint on the following instruction.
-    */
-}
-#else /*STM8S105, STM8S103 or STM8S903 or STM8AF626x */
-/**
-  * @brief  ADC1 interrupt routine.
-  * @param  None
-  * @retval None
-  */
- INTERRUPT_HANDLER(ADC1_IRQHandler, 22)
-{
-    /* In order to detect unexpected events during development,
-       it is recommended to set a breakpoint on the following instruction.
-    */
-	//TODO: [ML] Handle the ADC interrupt
-	state |= STATE_ADC_READY;
-	ADC1_ClearFlag(ADC1_FLAG_EOC);
-}
-#endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
-
-#ifdef STM8S903
-/**
-  * @brief  Timer6 Update/Overflow/Trigger Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
-INTERRUPT_HANDLER(TIM6_UPD_OVF_TRG_IRQHandler, 23)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-#else /*STM8S208, STM8S207, STM8S105 or STM8S103 or STM8S001 or STM8AF62Ax or STM8AF52Ax or STM8AF626x */
-/**
-  * @brief  Timer4 Update/Overflow Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 23)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-#endif /*STM8S903*/
-
-/**
-  * @brief  Eeprom EEC Interrupt routine
-  * @param None
-  * @retval
-	* None
-  */
-INTERRUPT_HANDLER(EEPROM_EEC_IRQHandler, 24)
-{
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
-}
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
- 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

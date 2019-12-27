@@ -5,25 +5,28 @@ Keyword=ST7Project
 Number=1.3
 
 [Root.Source Files.src\main.c.Config.0]
-ExternDep= src\main.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h include\stm8s_awu.h  include\stm8s_beep.h include\stm8s_clk.h include\stm8s_exti.h  include\stm8s_flash.h include\stm8s_gpio.h include\stm8s_i2c.h  include\stm8s_itc.h include\stm8s_iwdg.h include\stm8s_rst.h  include\stm8s_spi.h include\stm8s_tim1.h include\stm8s_tim2.h  include\stm8s_tim4.h include\stm8s_uart1.h include\stm8s_wwdg.h
+ExternDep= src\main.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h include\stm8s_clk.h  include\stm8s_gpio.h include\stm8s_i2c.h include\stm8s_rst.h  include\stm8s_tim2.h include\main.h  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\stdbool.h"
 
 [Root.Source Files.src\stm8s_adc1.c.Config.0]
-ExternDep= src\stm8s_adc1.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_adc1.h include\stm8s.h include\stm8s_conf.h include\stm8s_awu.h  include\stm8s_beep.h include\stm8s_clk.h include\stm8s_exti.h  include\stm8s_flash.h include\stm8s_gpio.h include\stm8s_i2c.h  include\stm8s_itc.h include\stm8s_iwdg.h include\stm8s_rst.h  include\stm8s_spi.h include\stm8s_tim1.h include\stm8s_tim2.h  include\stm8s_tim4.h include\stm8s_uart1.h include\stm8s_wwdg.h
+ExternDep= src\stm8s_adc1.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_adc1.h include\stm8s.h include\stm8s_conf.h include\stm8s_clk.h  include\stm8s_gpio.h include\stm8s_i2c.h include\stm8s_rst.h  include\stm8s_tim2.h
 
 [Root.Source Files.src\stm8s_clk.c.Config.0]
-ExternDep= src\stm8s_clk.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_clk.h include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h  include\stm8s_awu.h include\stm8s_beep.h include\stm8s_exti.h  include\stm8s_flash.h include\stm8s_gpio.h include\stm8s_i2c.h  include\stm8s_itc.h include\stm8s_iwdg.h include\stm8s_rst.h  include\stm8s_spi.h include\stm8s_tim1.h include\stm8s_tim2.h  include\stm8s_tim4.h include\stm8s_uart1.h include\stm8s_wwdg.h
-
-[Root.Source Files.src\stm8s_exti.c.Config.0]
-ExternDep= src\stm8s_exti.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_exti.h include\stm8s.h include\stm8s_conf.h  include\stm8s_adc1.h include\stm8s_awu.h include\stm8s_beep.h  include\stm8s_clk.h include\stm8s_flash.h include\stm8s_gpio.h  include\stm8s_i2c.h include\stm8s_itc.h include\stm8s_iwdg.h  include\stm8s_rst.h include\stm8s_spi.h include\stm8s_tim1.h  include\stm8s_tim2.h include\stm8s_tim4.h include\stm8s_uart1.h  include\stm8s_wwdg.h
+ExternDep= src\stm8s_clk.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_clk.h include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h  include\stm8s_gpio.h include\stm8s_i2c.h include\stm8s_rst.h  include\stm8s_tim2.h
 
 [Root.Source Files.src\stm8s_gpio.c.Config.0]
-ExternDep= src\stm8s_gpio.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_gpio.h include\stm8s.h include\stm8s_conf.h  include\stm8s_adc1.h include\stm8s_awu.h include\stm8s_beep.h  include\stm8s_clk.h include\stm8s_exti.h include\stm8s_flash.h  include\stm8s_i2c.h include\stm8s_itc.h include\stm8s_iwdg.h  include\stm8s_rst.h include\stm8s_spi.h include\stm8s_tim1.h  include\stm8s_tim2.h include\stm8s_tim4.h include\stm8s_uart1.h  include\stm8s_wwdg.h
+ExternDep= src\stm8s_gpio.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_gpio.h include\stm8s.h include\stm8s_conf.h  include\stm8s_adc1.h include\stm8s_clk.h include\stm8s_i2c.h  include\stm8s_rst.h include\stm8s_tim2.h
 
 [Root.Source Files.src\stm8s_i2c.c.Config.0]
-ExternDep= src\stm8s_i2c.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_i2c.h include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h  include\stm8s_awu.h include\stm8s_beep.h include\stm8s_clk.h  include\stm8s_exti.h include\stm8s_flash.h include\stm8s_gpio.h  include\stm8s_itc.h include\stm8s_iwdg.h include\stm8s_rst.h  include\stm8s_spi.h include\stm8s_tim1.h include\stm8s_tim2.h  include\stm8s_tim4.h include\stm8s_uart1.h include\stm8s_wwdg.h
+ExternDep= src\stm8s_i2c.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_i2c.h include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h  include\stm8s_clk.h include\stm8s_gpio.h include\stm8s_rst.h  include\stm8s_tim2.h
+
+[Root.Source Files.src\stm8s_it.c.Config.0]
+ExternDep= src\stm8s_it.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_it.h include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h  include\stm8s_clk.h include\stm8s_gpio.h include\stm8s_i2c.h  include\stm8s_rst.h include\stm8s_tim2.h include\main.h
 
 [Root.Source Files.src\stm8s_rst.c.Config.0]
-ExternDep= src\stm8s_rst.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_rst.h include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h  include\stm8s_awu.h include\stm8s_beep.h include\stm8s_clk.h  include\stm8s_exti.h include\stm8s_flash.h include\stm8s_gpio.h  include\stm8s_i2c.h include\stm8s_itc.h include\stm8s_iwdg.h  include\stm8s_spi.h include\stm8s_tim1.h include\stm8s_tim2.h  include\stm8s_tim4.h include\stm8s_uart1.h include\stm8s_wwdg.h
+ExternDep= src\stm8s_rst.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_rst.h include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h  include\stm8s_clk.h include\stm8s_gpio.h include\stm8s_i2c.h  include\stm8s_tim2.h
+
+[Root.Source Files.src\stm8s_tim2.c.Config.0]
+ExternDep= src\stm8s_tim2.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_tim2.h include\stm8s.h include\stm8s_conf.h  include\stm8s_adc1.h include\stm8s_clk.h include\stm8s_gpio.h  include\stm8s_i2c.h include\stm8s_rst.h
 
 [Root.Source Files.stm8_interrupt_vector.c.Config.0]
-ExternDep= stm8_interrupt_vector.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"
+ExternDep= stm8_interrupt_vector.c  "C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8\HSTM8\mods0.h"  include\stm8s_it.h include\stm8s.h include\stm8s_conf.h include\stm8s_adc1.h  include\stm8s_clk.h include\stm8s_gpio.h include\stm8s_i2c.h  include\stm8s_rst.h include\stm8s_tim2.h

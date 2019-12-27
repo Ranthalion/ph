@@ -1,6 +1,7 @@
 #include "stm8s.h"
 #include "main.h"
 #include <stdbool.h>
+#include "led.h"
 
 /*
 PA1	ADC
@@ -25,16 +26,14 @@ void HandleADC(void);
 void HandleTimerTick(void);
 
 volatile uint8_t state = 0;
-struct led_state
-{
-	uint8_t ctr;
-	uint16_t pattern;
-} led;
+volatile uint16_t phRaw = 0;
 
 #define BUFFER_SIZE 32
 uint16_t adcValues[BUFFER_SIZE];
 uint8_t idxBuffer = 0;
 bool bufferEmpty = true;
+
+bool need = true;
 
 uint32_t averagedValue = 0;
 
@@ -42,7 +41,8 @@ main()
 {
 	init();
 	
-	led.pattern = LED_PANIC | LED_ONCE;
+	//SetLED(LED_PANIC, 1);
+	//SetLED(LED_BLINK, 0);
 
 	wfi(); //wait for interrupts
 	while (1)
@@ -56,15 +56,21 @@ main()
 			}
 			
 			//Check I2C State
-			if (state & STATE_I2C_READY)
-			{				
+			if (state & STATE_I2C_READY  && 1 == 0)
+			{
 				state &= ~(STATE_I2C_READY);
 			}
 			
 			//Check TMR State
 			if (state & STATE_TMR_TICK)
 			{
-				HandleTimerTick();				
+				HandleTimerTick();
+				if(need == true)
+				{
+					need = false;
+					//I2C_setup(0x45);
+					
+				}
 			}
 		}
 		
@@ -74,8 +80,6 @@ main()
 
 void assert_failed(u8* file, u32 line)
 {
-	//TODO: [ML] Indicate that an assert failed for some reason
-	//Maybe blink the LED?
   led.pattern = LED_PANIC;
 }
 
@@ -93,8 +97,9 @@ void init()
   clock_setup();
   GPIO_setup();
 	ADC_setup();
-	I2C_setup(0x45);
 	TIM2_setup();
+	I2C_setup(0x45);
+	
 	
 	/* Enable general interrupts */
   enableInterrupts();
@@ -168,7 +173,7 @@ void I2C_setup(uint16_t address)
 	
 	I2C_DeInit();
 	I2C_Init(100000, 
-					 address, 
+					 address << 1, 
 					 I2C_DUTYCYCLE_2, 
 					 I2C_ACK_CURR, 
 					 I2C_ADDMODE_7BIT, 
@@ -177,13 +182,14 @@ void I2C_setup(uint16_t address)
 	/* Enable Error Interrupt*/
   I2C_ITConfig((I2C_IT_TypeDef)(I2C_IT_ERR | I2C_IT_EVT | I2C_IT_BUF), ENABLE);
   
-	I2C_Cmd(ENABLE);
+	//I2C_Cmd(ENABLE);
+	//enableInterrupts();
 }
 
 void TIM2_setup(void)
 {
     TIM2_DeInit();
-    TIM2_TimeBaseInit(TIM2_PRESCALER_16, 32000);
+    TIM2_TimeBaseInit(TIM2_PRESCALER_32, 32000);
 		TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
     TIM2_Cmd(ENABLE);
 }
@@ -217,7 +223,7 @@ void HandleADC()
 		averagedValue += adcValues[x];
 	}
 	averagedValue = averagedValue / (BUFFER_SIZE * 8);
-	
+	phRaw = averagedValue;
 	//Increment buffer and roll over to 0 if > 31
 	idxBuffer++;
 	if (idxBuffer > 31)
@@ -230,24 +236,6 @@ void HandleADC()
 
 void HandleTimerTick()
 {
-	if (led.pattern & (1 << led.ctr))
-	{
-		GPIO_WriteLow(LED_port, LED_pin);
-	}
-	else
-	{
-		GPIO_WriteHigh(LED_port, LED_pin);					
-	}
-	
-	led.ctr++;
-	if(led.ctr >=14)
-	{
-		if (led.pattern & (1 << led.ctr))
-		{
-			led.pattern = LED_OFF;
-		}
-		led.ctr = 0;					
-	}
-	
+	LEDTick();
 	state &= ~(STATE_TMR_TICK);	
 }

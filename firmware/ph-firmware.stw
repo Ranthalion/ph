@@ -6,3 +6,7 @@ Keyword=ST7Workspace-V0.7
 [Project0]
 Filename=ph-firmware.stp
 Dependencies=
+[Options]
+ActiveProject=ph-firmware
+ActiveConfig=Debug
+AddSortedElements=0

@@ -1109,7 +1109,7 @@ Wire Wire Line
 	3200 1550 3200 1500
 Wire Wire Line
 	3200 1500 3500 1500
-Text Notes 3050 1150 0    50   ~ 0
+Text Notes 3000 2350 0    50   ~ 0
 RFM-0505S requires a minimum \ncurrent draw, so these resistors \nallow some wiggle room
 NoConn ~ 5200 4800
 Wire Wire Line

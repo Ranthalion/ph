@@ -170,13 +170,13 @@ ADC2_TDRH_RESET_VALUE	include\stm8s.h	410;"	macro
 ADC2_TDRL_RESET_VALUE	include\stm8s.h	409;"	macro
 ADC2_TypeDef	include\stm8s.h	401;"	typedef	typeref:struct:ADC2_struct
 ADC2_struct	include\stm8s.h	390;"	struct
-ADC_pin	include\main.h	17;"	macro
-ADC_port	include\main.h	16;"	macro
-ADC_setup	src\main.c	148;"	function
-ADC_setup	src\main.c	20;"	prototype	file:	signature:(void)
-ADDR_pin_1	include\main.h	13;"	macro
-ADDR_pin_2	include\main.h	14;"	macro
-ADDR_port	include\main.h	12;"	macro
+ADC_pin	include\main.h	14;"	macro
+ADC_port	include\main.h	13;"	macro
+ADC_setup	src\main.c	153;"	function
+ADC_setup	src\main.c	21;"	prototype	file:	signature:(void)
+ADDR_pin_1	include\main.h	10;"	macro
+ADDR_pin_2	include\main.h	11;"	macro
+ADDR_port	include\main.h	9;"	macro
 APR	include\stm8s.h	443;"	member	struct:AWU_struct
 AREA	include\stm8s.h	2820;"	macro
 ARR	include\stm8s.h	1070;"	member	struct:TIM4_struct
@@ -226,7 +226,7 @@ BRR2	include\stm8s.h	1977;"	member	struct:UART3_struct
 BRR2	include\stm8s.h	2069;"	member	struct:UART4_struct
 BTR1	include\stm8s.h	2297;"	member	struct:__anon5::__anon6::__anon12
 BTR2	include\stm8s.h	2298;"	member	struct:__anon5::__anon6::__anon12
-BUFFER_SIZE	src\main.c	34;"	macro	file:
+BUFFER_SIZE	src\main.c	31;"	macro	file:
 BYTE_0	include\stm8s.h	2800;"	macro
 BYTE_1	include\stm8s.h	2801;"	macro
 BYTE_2	include\stm8s.h	2802;"	macro
@@ -723,8 +723,8 @@ DRL	include\stm8s.h	326;"	member	struct:ADC1_struct
 DRL	include\stm8s.h	397;"	member	struct:ADC2_struct
 DTR	include\stm8s.h	644;"	member	struct:TIM1_struct
 DUKR	include\stm8s.h	1526;"	member	struct:FLASH_struct
-Delay	src\main.c	23;"	prototype	file:	signature:(uint16_t nCount)
-Delay	src\main.c	82;"	function	signature:(uint16_t nCount)
+Delay	src\main.c	24;"	prototype	file:	signature:(uint16_t nCount)
+Delay	src\main.c	86;"	function	signature:(uint16_t nCount)
 ECKR	include\stm8s.h	511;"	member	struct:CLK_struct
 EEPROM	include\stm8s.h	125;"	macro
 EEPROM	include\stm8s.h	131;"	macro
@@ -760,7 +760,7 @@ EXTI_PORTF_IRQHandler	include\stm8s_it.h	56;"	prototype	signature:(void)
 EXTI_TypeDef	include\stm8s.h	1478;"	typedef	typeref:struct:EXTI_struct
 EXTI_struct	include\stm8s.h	1473;"	struct
 ErrorStatus	include\stm8s.h	238;"	typedef	typeref:enum:__anon4
-Event	src\stm8s_it.c	44;"	variable
+Event	src\stm8s_it.c	35;"	variable
 F0R1	include\stm8s.h	2230;"	member	struct:__anon5::__anon6::__anon9
 F0R2	include\stm8s.h	2231;"	member	struct:__anon5::__anon6::__anon9
 F0R3	include\stm8s.h	2232;"	member	struct:__anon5::__anon6::__anon9
@@ -943,8 +943,8 @@ GPIO_WriteLow	include\stm8s_gpio.h	143;"	prototype	signature:(GPIO_TypeDef* GPIO
 GPIO_WriteLow	src\stm8s_gpio.c	167;"	function	signature:(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef PortPins)
 GPIO_WriteReverse	include\stm8s_gpio.h	144;"	prototype	signature:(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef PortPins)
 GPIO_WriteReverse	src\stm8s_gpio.c	180;"	function	signature:(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef PortPins)
-GPIO_setup	src\main.c	129;"	function
-GPIO_setup	src\main.c	19;"	prototype	file:	signature:(void)
+GPIO_setup	src\main.c	134;"	function
+GPIO_setup	src\main.c	20;"	prototype	file:	signature:(void)
 GPIO_struct	include\stm8s.h	265;"	struct
 GTR	include\stm8s.h	1778;"	member	struct:UART1_struct
 GTR	include\stm8s.h	1877;"	member	struct:UART2_struct
@@ -956,10 +956,10 @@ HSITRIMR	include\stm8s.h	522;"	member	struct:CLK_struct
 HSI_VALUE	include\stm8s.h	118;"	macro
 HTRH	include\stm8s.h	329;"	member	struct:ADC1_struct
 HTRL	include\stm8s.h	330;"	member	struct:ADC1_struct
-HandleADC	src\main.c	191;"	function
-HandleADC	src\main.c	24;"	prototype	file:	signature:(void)
-HandleTimerTick	src\main.c	231;"	function
-HandleTimerTick	src\main.c	25;"	prototype	file:	signature:(void)
+HandleADC	src\main.c	197;"	function
+HandleADC	src\main.c	25;"	prototype	file:	signature:(void)
+HandleTimerTick	src\main.c	237;"	function
+HandleTimerTick	src\main.c	26;"	prototype	file:	signature:(void)
 I2C	include\stm8s.h	2656;"	macro
 I2C_ACK_CURR	include\stm8s_i2c.h	56;"	enumerator	enum:__anon36
 I2C_ACK_NEXT	include\stm8s_i2c.h	57;"	enumerator	enum:__anon36
@@ -1123,8 +1123,8 @@ I2C_StretchClockCmd	src\stm8s_i2c.c	320;"	function	signature:(FunctionalState Ne
 I2C_TRISER_RESET_VALUE	include\stm8s.h	1364;"	macro
 I2C_TRISER_TRISE	include\stm8s.h	1424;"	macro
 I2C_TypeDef	include\stm8s.h	1346;"	typedef	typeref:struct:I2C_struct
-I2C_setup	src\main.c	165;"	function	signature:(uint16_t address)
-I2C_setup	src\main.c	21;"	prototype	file:	signature:(uint16_t address)
+I2C_setup	src\main.c	170;"	function	signature:(uint16_t address)
+I2C_setup	src\main.c	22;"	prototype	file:	signature:(uint16_t address)
 I2C_struct	include\stm8s.h	1328;"	struct
 IAPSR	include\stm8s.h	1521;"	member	struct:FLASH_struct
 ICKR	include\stm8s.h	510;"	member	struct:CLK_struct
@@ -1145,7 +1145,7 @@ INTERRUPT_HANDLER	include\stm8s.h	2760;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2749;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2754;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2763;"	macro
-INTERRUPT_HANDLER_TRAP	src\stm8s_it.c	80;"	function
+INTERRUPT_HANDLER_TRAP	src\stm8s_it.c	386;"	function
 IN_RAM	include\stm8s.h	171;"	macro
 IN_RAM	include\stm8s.h	173;"	macro
 IN_RAM	include\stm8s.h	175;"	macro
@@ -1235,15 +1235,16 @@ IWDG_RLR_RESET_VALUE	include\stm8s.h	1622;"	macro
 IWDG_TypeDef	include\stm8s.h	1615;"	typedef	typeref:struct:IWDG_struct
 IWDG_struct	include\stm8s.h	1609;"	struct
 KR	include\stm8s.h	1611;"	member	struct:IWDG_struct
-LED_BLINK	include\main.h	25;"	macro
-LED_BLIP	include\main.h	24;"	macro
-LED_OFF	include\main.h	23;"	macro
-LED_ON	include\main.h	22;"	macro
-LED_ONCE	include\main.h	19;"	macro
-LED_PANIC	include\main.h	21;"	macro
-LED_SLOW_FLASH	include\main.h	26;"	macro
-LED_pin	include\main.h	10;"	macro
-LED_port	include\main.h	9;"	macro
+LEDTick	include\led.h	27;"	prototype	signature:(void)
+LEDTick	src\led.c	12;"	function
+LED_BLINK	include\led.h	14;"	macro
+LED_BLIP	include\led.h	13;"	macro
+LED_OFF	include\led.h	12;"	macro
+LED_ON	include\led.h	11;"	macro
+LED_PANIC	include\led.h	10;"	macro
+LED_SLOW_FLASH	include\led.h	15;"	macro
+LED_pin	include\led.h	8;"	macro
+LED_port	include\led.h	7;"	macro
 LSI_VALUE	include\stm8s.h	119;"	macro
 LTRH	include\stm8s.h	331;"	member	struct:ADC1_struct
 LTRL	include\stm8s.h	332;"	member	struct:ADC1_struct
@@ -1298,7 +1299,7 @@ NOPT4	include\stm8s.h	1594;"	member	struct:OPT_struct
 NOPT5	include\stm8s.h	1596;"	member	struct:OPT_struct
 NOPT7	include\stm8s.h	1600;"	member	struct:OPT_struct
 NonHandledInterrupt	include\stm8s_it.h	41;"	prototype	signature:(void)
-NonHandledInterrupt	src\stm8s_it.c	55;"	function	signature:(void)
+NonHandledInterrupt	src\stm8s_it.c	361;"	function	signature:(void)
 OARH	include\stm8s.h	1334;"	member	struct:I2C_struct
 OARL	include\stm8s.h	1333;"	member	struct:I2C_struct
 ODR	include\stm8s.h	267;"	member	struct:GPIO_struct
@@ -1379,7 +1380,7 @@ RXCRCR	include\stm8s.h	1704;"	member	struct:SPI_struct
 Reserved1	include\stm8s.h	2299;"	member	struct:__anon5::__anon6::__anon12
 Reserved2	include\stm8s.h	2305;"	member	struct:__anon5::__anon6::__anon12
 RxFIFO	include\stm8s.h	2326;"	member	union:__anon5::__anon6	typeref:struct:__anon5::__anon6::__anon13
-Rx_Idx	src\stm8s_it.c	43;"	variable
+Rx_Idx	src\stm8s_it.c	34;"	variable
 S16_MAX	include\stm8s.h	244;"	macro
 S16_MIN	include\stm8s.h	245;"	macro
 S32_MAX	include\stm8s.h	247;"	macro
@@ -1455,7 +1456,9 @@ SWCR	include\stm8s.h	515;"	member	struct:CLK_struct
 SWIMCCR	include\stm8s.h	523;"	member	struct:CLK_struct
 SWR	include\stm8s.h	514;"	member	struct:CLK_struct
 SetBit	include\stm8s.h	2789;"	macro
-Slave_Buffer_Rx	src\stm8s_it.c	42;"	variable
+SetLED	include\led.h	26;"	prototype	signature:(uint16_t pattern, uint8_t repeatCount)
+SetLED	src\led.c	5;"	function	signature:(uint16_t pattern, uint8_t repeatCount)
+Slave_Buffer_Rx	src\stm8s_it.c	33;"	variable
 TBR	include\stm8s.h	444;"	member	struct:AWU_struct
 TDRH	include\stm8s.h	327;"	member	struct:ADC1_struct
 TDRH	include\stm8s.h	398;"	member	struct:ADC2_struct
@@ -1762,8 +1765,8 @@ TIM2_UPDATESOURCE_GLOBAL	include\stm8s_tim2.h	244;"	enumerator	enum:__anon57
 TIM2_UPDATESOURCE_REGULAR	include\stm8s_tim2.h	245;"	enumerator	enum:__anon57
 TIM2_UPD_OVF_BRK_IRQHandler	include\stm8s_it.h	72;"	prototype	signature:(void)
 TIM2_UpdateSource_TypeDef	include\stm8s_tim2.h	246;"	typedef	typeref:enum:__anon57
-TIM2_setup	src\main.c	183;"	function	signature:(void)
-TIM2_setup	src\main.c	22;"	prototype	file:	signature:(void)
+TIM2_setup	src\main.c	189;"	function	signature:(void)
+TIM2_setup	src\main.c	23;"	prototype	file:	signature:(void)
 TIM2_struct	include\stm8s.h	824;"	struct
 TIM3	include\stm8s.h	2686;"	macro
 TIM3_ARRH_ARR	include\stm8s.h	1041;"	macro
@@ -1963,13 +1966,13 @@ TINY	include\stm8s.h	144;"	macro
 TLI_IRQHandler	include\stm8s_it.h	46;"	prototype	signature:(void)
 TPR	include\stm8s.h	2179;"	member	struct:__anon5
 TRAP_IRQHandler	include\stm8s_it.h	45;"	prototype	signature:(void)
-TRAP_IRQHandler	src\stm8s_it.c	67;"	function	signature:(void)
+TRAP_IRQHandler	src\stm8s_it.c	373;"	function	signature:(void)
 TRISER	include\stm8s.h	1343;"	member	struct:I2C_struct
 TRUE	include\stm8s.h	231;"	enumerator	enum:__anon1
 TSR	include\stm8s.h	2178;"	member	struct:__anon5
 TXCRCR	include\stm8s.h	1705;"	member	struct:SPI_struct
 TxMailbox	include\stm8s.h	2205;"	member	union:__anon5::__anon6	typeref:struct:__anon5::__anon6::__anon7
-Tx_Idx	src\stm8s_it.c	43;"	variable
+Tx_Idx	src\stm8s_it.c	34;"	variable
 U16_MAX	include\stm8s.h	243;"	macro
 U32_MAX	include\stm8s.h	246;"	macro
 U8_MAX	include\stm8s.h	240;"	macro
@@ -2233,6 +2236,7 @@ _IAR_	include\stm8s.h	87;"	macro
 _RAISONANCE_	include\stm8s.h	85;"	macro
 __I	include\stm8s.h	206;"	macro
 __IO	include\stm8s.h	208;"	macro
+__LED_H	include\led.h	3;"	macro
 __MAIN_H	include\main.h	3;"	macro
 __MODS0__	c:\program files (x86)\cosmic\fse_compilers\cxstm8\hstm8\mods0.h	11;"	macro
 __O	include\stm8s.h	207;"	macro
@@ -2255,21 +2259,22 @@ __bool_true_false_are_defined	c:\program files (x86)\cosmic\fse_compilers\cxstm8
 _stext	include\stm8s_it.h	40;"	prototype	signature:(void)
 _stext	stm8_interrupt_vector.c	14;"	prototype	file:
 _vectab	stm8_interrupt_vector.c	16;"	variable
-adcValues	src\main.c	35;"	variable
+adcValues	src\main.c	32;"	variable
 assert_failed	include\stm8s_conf.h	68;"	prototype	signature:(uint8_t* file, uint32_t line)
-assert_failed	src\main.c	75;"	function	signature:(u8* file, u32 line)
+assert_failed	src\main.c	81;"	function	signature:(u8* file, u32 line)
 assert_param	include\stm8s_conf.h	66;"	macro
 assert_param	include\stm8s_conf.h	70;"	macro
-averagedValue	src\main.c	39;"	variable
+averagedValue	src\main.c	38;"	variable
 bool	c:\program files (x86)\cosmic\fse_compilers\cxstm8\hstm8\stdbool.h	7;"	macro
 bool	include\stm8s.h	231;"	typedef	typeref:enum:__anon1
-bufferEmpty	src\main.c	37;"	variable
-clock_setup	src\main.c	103;"	function	signature:(void)
-clock_setup	src\main.c	18;"	prototype	file:	signature:(void)
-ctr	src\main.c	30;"	member	struct:led_state	file:
+bufferEmpty	src\main.c	34;"	variable
+clock_setup	src\main.c	108;"	function	signature:(void)
+clock_setup	src\main.c	19;"	prototype	file:	signature:(void)
+ctr	include\led.h	19;"	member	struct:led_state
 disableInterrupts	include\stm8s.h	2717;"	macro
 disableInterrupts	include\stm8s.h	2726;"	macro
 disableInterrupts	include\stm8s.h	2736;"	macro
+duration	include\led.h	21;"	member	struct:led_state
 enableInterrupts	include\stm8s.h	2716;"	macro
 enableInterrupts	include\stm8s.h	2725;"	macro
 enableInterrupts	include\stm8s.h	2735;"	macro
@@ -2277,9 +2282,9 @@ false	c:\program files (x86)\cosmic\fse_compilers\cxstm8\hstm8\stdbool.h	10;"	ma
 halt	include\stm8s.h	2723;"	macro
 halt	include\stm8s.h	2732;"	macro
 halt	include\stm8s.h	2742;"	macro
-idxBuffer	src\main.c	36;"	variable
-init	src\main.c	17;"	prototype	file:	signature:(void)
-init	src\main.c	91;"	function
+idxBuffer	src\main.c	33;"	variable
+init	src\main.c	18;"	prototype	file:	signature:(void)
+init	src\main.c	95;"	function
 int16_t	include\stm8s.h	212;"	typedef
 int32_t	include\stm8s.h	213;"	typedef
 int8_t	include\stm8s.h	211;"	typedef
@@ -2287,13 +2292,16 @@ interrupt_handler	stm8_interrupt_vector.c	11;"	member	struct:interrupt_vector	fi
 interrupt_handler_t	stm8_interrupt_vector.c	7;"	typedef	file:
 interrupt_instruction	stm8_interrupt_vector.c	10;"	member	struct:interrupt_vector	file:
 interrupt_vector	stm8_interrupt_vector.c	9;"	struct	file:
-led	src\main.c	32;"	variable	typeref:struct:led_state
-led_state	src\main.c	28;"	struct	file:
-main	src\main.c	41;"	function
+led	src\led.c	3;"	variable	typeref:struct:led_state
+led_state	include\led.h	17;"	struct
+main	src\main.c	40;"	function
+need	src\main.c	36;"	variable
 nop	include\stm8s.h	2720;"	macro
 nop	include\stm8s.h	2729;"	macro
 nop	include\stm8s.h	2739;"	macro
-pattern	src\main.c	31;"	member	struct:led_state	file:
+pattern	include\led.h	20;"	member	struct:led_state
+phRaw	src\main.c	29;"	variable
+reg	src\stm8s_it.c	36;"	variable
 rim	include\stm8s.h	2718;"	macro
 rim	include\stm8s.h	2727;"	macro
 rim	include\stm8s.h	2737;"	macro
@@ -2303,7 +2311,7 @@ s8	include\stm8s.h	224;"	typedef
 sim	include\stm8s.h	2719;"	macro
 sim	include\stm8s.h	2728;"	macro
 sim	include\stm8s.h	2738;"	macro
-state	src\main.c	27;"	variable
+state	src\main.c	28;"	variable
 trap	include\stm8s.h	2721;"	macro
 trap	include\stm8s.h	2730;"	macro
 trap	include\stm8s.h	2740;"	macro

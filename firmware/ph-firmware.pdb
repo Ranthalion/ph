@@ -3,10 +3,10 @@ DumpRWOnFly1=0
 DumpRWOnFly2=0
 DumpRWOnFly3=0
 DumpRWOnFly4=0
-WatchVariables1=idxBuffer!0;averagedValue!0;adcValues!0;
+WatchVariables1=Event!1;idxMode!0;modeBuffer!2;modeBuffer[42]!2;modeBuffer[41]!0;modeBuffer[40]!0;modeBuffer[39]!0;modeBuffer[43]!0;
 FormatWatch1=0
-FormatViewType1=1
-FormatViewAddress1=1
+FormatViewType1=0
+FormatViewAddress1=0
 WatchRWOnFlyTab1=0
 WatchVariables2=
 FormatWatch2=0
@@ -28,7 +28,7 @@ FormatParameters=0
 [DebugState_v1-Debug.AddOn.St7Registers]
 ActiveTab=2
 [DebugState_v1-Debug.AddOn.St7PeripheralRegister]
-DisplayFormat=1
+DisplayFormat=3
 ShowPeriphAddress=0
 ShowRegisterAddress=1
 [DebugState_v1-Debug.AddOn.St7McuIcdConf]
