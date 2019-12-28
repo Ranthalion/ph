@@ -25,5 +25,7 @@ extern volatile struct led_state led;
 
 void SetLED(uint16_t pattern, uint8_t repeatCount);
 void LEDTick(void);
+void LEDToggle(void);
+void LEDOff(void);
 
 #endif //__LED_H

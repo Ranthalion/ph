@@ -28,7 +28,7 @@ void HandleTimerTick(void);
 volatile uint8_t state = 0;
 volatile uint16_t phRaw = 0;
 
-#define BUFFER_SIZE 32
+#define BUFFER_SIZE 64
 uint16_t adcValues[BUFFER_SIZE];
 uint8_t idxBuffer = 0;
 bool bufferEmpty = true;
@@ -41,7 +41,7 @@ main()
 {
 	init();
 	
-	//SetLED(LED_PANIC, 1);
+	SetLED(LED_PANIC, 1);
 	//SetLED(LED_BLINK, 0);
 
 	wfi(); //wait for interrupts
@@ -80,7 +80,7 @@ main()
 
 void assert_failed(u8* file, u32 line)
 {
-  led.pattern = LED_PANIC;
+	SetLED(LED_PANIC, 10);
 }
 
 void Delay(uint16_t nCount)
@@ -156,7 +156,7 @@ void ADC_setup()
 	
 	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, 
              ADC1_CHANNEL_6,
-             ADC1_PRESSEL_FCPU_D8, 
+             ADC1_PRESSEL_FCPU_D12, 
              ADC1_EXTTRIG_GPIO, 
              DISABLE, 
              ADC1_ALIGN_RIGHT, 
@@ -202,7 +202,7 @@ void HandleADC()
 	adcValues[idxBuffer] = 0;
 	for(x = 0; x < 8; x++)
 	{
-		adcValues[idxBuffer] += (ADC1_GetBufferValue(x) << 2);
+		adcValues[idxBuffer] += (ADC1_GetBufferValue(x) << 3);
 	}
 	
 	//Fill up the buffer with the first value 
@@ -224,9 +224,9 @@ void HandleADC()
 	}
 	averagedValue = averagedValue / (BUFFER_SIZE * 8);
 	phRaw = averagedValue;
-	//Increment buffer and roll over to 0 if > 31
+	//Increment buffer and roll over
 	idxBuffer++;
-	if (idxBuffer > 31)
+	if (idxBuffer >= BUFFER_SIZE)
 	{
 		idxBuffer = 0;
 	}

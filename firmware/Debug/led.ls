@@ -76,12 +76,37 @@
  184  0050               L74:
  185                     ; 36 }
  188  0050 81            	ret
- 241                     	xdef	_LEDTick
- 242                     	xdef	_SetLED
- 243                     	switch	.ubsct
- 244  0000               _led:
- 245  0000 00000000      	ds.b	4
- 246                     	xdef	_led
- 247                     	xref	_GPIO_WriteLow
- 248                     	xref	_GPIO_WriteHigh
- 268                     	end
+ 212                     ; 38 void LEDToggle()
+ 212                     ; 39 {
+ 213                     	switch	.text
+ 214  0051               _LEDToggle:
+ 218                     ; 40 	GPIO_WriteReverse(LED_port, LED_pin);
+ 220  0051 4b08          	push	#8
+ 221  0053 ae500f        	ldw	x,#20495
+ 222  0056 cd0000        	call	_GPIO_WriteReverse
+ 224  0059 84            	pop	a
+ 225                     ; 41 }
+ 228  005a 81            	ret
+ 252                     ; 43 void LEDOff()
+ 252                     ; 44 {
+ 253                     	switch	.text
+ 254  005b               _LEDOff:
+ 258                     ; 45 	GPIO_WriteHigh(LED_port, LED_pin);
+ 260  005b 4b08          	push	#8
+ 261  005d ae500f        	ldw	x,#20495
+ 262  0060 cd0000        	call	_GPIO_WriteHigh
+ 264  0063 84            	pop	a
+ 265                     ; 46 }
+ 268  0064 81            	ret
+ 321                     	xdef	_LEDOff
+ 322                     	xdef	_LEDToggle
+ 323                     	xdef	_LEDTick
+ 324                     	xdef	_SetLED
+ 325                     	switch	.ubsct
+ 326  0000               _led:
+ 327  0000 00000000      	ds.b	4
+ 328                     	xdef	_led
+ 329                     	xref	_GPIO_WriteReverse
+ 330                     	xref	_GPIO_WriteLow
+ 331                     	xref	_GPIO_WriteHigh
+ 351                     	end

@@ -34,3 +34,13 @@ void LEDTick()
 		led.ctr = 0;					
 	}
 }
+
+void LEDToggle()
+{
+	GPIO_WriteReverse(LED_port, LED_pin);
+}
+
+void LEDOff()
+{
+	GPIO_WriteHigh(LED_port, LED_pin);
+}

@@ -116,6 +116,88 @@ __IO uint8_t idxMode=0;
   */
 INTERRUPT_HANDLER(I2C_IRQHandler, 19)
 {
+	static u8 sr1;					
+	static u8 sr2;
+	static u8 sr3;
+		
+	// save the I2C registers configuration
+	sr1 = I2C->SR1;
+	sr2 = I2C->SR2;
+	sr3 = I2C->SR3;
+
+/* Communication error? */
+  if (sr2 & (I2C_SR2_WUFH | I2C_SR2_OVR |I2C_SR2_ARLO |I2C_SR2_BERR))
+  {		
+    I2C->CR2|= I2C_CR2_STOP;  // stop communication - release the lines
+    I2C->SR2= 0;					    // clear all error flags
+	}
+/* More bytes received ? */
+  if ((sr1 & (I2C_SR1_RXNE | I2C_SR1_BTF)) == (I2C_SR1_RXNE | I2C_SR1_BTF))
+  {
+    //I2C_byte_received(I2C->DR);
+		Slave_Buffer_Rx[Rx_Idx++] = I2C_ReceiveData();
+  }
+/* Byte received ? */
+  if (sr1 & I2C_SR1_RXNE)
+  {
+    //I2C_byte_received(I2C->DR);
+		Slave_Buffer_Rx[Rx_Idx++] = I2C_ReceiveData();
+  }
+/* NAK? (=end of slave transmit comm) */
+  if (sr2 & I2C_SR2_AF)
+  {	
+    I2C->SR2 &= ~I2C_SR2_AF;	  // clear AF
+		if (led.pattern == LED_OFF)
+		{
+			LEDOff();
+		}
+		//I2C_transaction_end();
+	}
+/* Stop bit from Master  (= end of slave receive comm) */
+  if (sr1 & I2C_SR1_STOPF) 
+  {
+    I2C->CR2 |= I2C_CR2_ACK;	  // CR2 write to clear STOPF
+		//I2C_transaction_end();
+	}
+/* Slave address matched (= Start Comm) */
+  if (sr1 & I2C_SR1_ADDR)
+  {
+		Rx_Idx = 0;
+		//I2C_transaction_begin();
+	}
+/* More bytes to transmit ? */
+  if ((sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) == (I2C_SR1_TXE | I2C_SR1_BTF))
+  {
+		//I2C->DR = I2C_byte_write();
+		I2C_SendData(0x00);
+  }
+/* Byte to transmit ? */
+  if (sr1 & I2C_SR1_TXE)
+  {
+		if (led.pattern == LED_OFF)
+		{
+			LEDToggle();
+		}
+		//I2C->DR = I2C_byte_write();
+		if (Rx_Idx == 0)
+		{
+			
+			I2C_SendData(((phRaw >> 8) & 0x00FF));
+			Rx_Idx = 1;
+		}
+		else
+		{			
+			I2C_SendData((phRaw & 0x00FF));
+			Rx_Idx = 0;
+		}
+  }	
+	
+	return;
+	
+	
+	/***************************/
+	/***************************/
+	/***************************/
   /* Read SR2 register to get I2C error */
 	reg = I2C->SR2;
 	

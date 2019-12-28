@@ -1145,7 +1145,7 @@ INTERRUPT_HANDLER	include\stm8s.h	2760;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2749;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2754;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2763;"	macro
-INTERRUPT_HANDLER_TRAP	src\stm8s_it.c	386;"	function
+INTERRUPT_HANDLER_TRAP	src\stm8s_it.c	494;"	function
 IN_RAM	include\stm8s.h	171;"	macro
 IN_RAM	include\stm8s.h	173;"	macro
 IN_RAM	include\stm8s.h	175;"	macro
@@ -1235,8 +1235,12 @@ IWDG_RLR_RESET_VALUE	include\stm8s.h	1622;"	macro
 IWDG_TypeDef	include\stm8s.h	1615;"	typedef	typeref:struct:IWDG_struct
 IWDG_struct	include\stm8s.h	1609;"	struct
 KR	include\stm8s.h	1611;"	member	struct:IWDG_struct
+LEDOff	include\led.h	29;"	prototype	signature:(void)
+LEDOff	src\led.c	43;"	function
 LEDTick	include\led.h	27;"	prototype	signature:(void)
 LEDTick	src\led.c	12;"	function
+LEDToggle	include\led.h	28;"	prototype	signature:(void)
+LEDToggle	src\led.c	38;"	function
 LED_BLINK	include\led.h	14;"	macro
 LED_BLIP	include\led.h	13;"	macro
 LED_OFF	include\led.h	12;"	macro
@@ -1299,7 +1303,7 @@ NOPT4	include\stm8s.h	1594;"	member	struct:OPT_struct
 NOPT5	include\stm8s.h	1596;"	member	struct:OPT_struct
 NOPT7	include\stm8s.h	1600;"	member	struct:OPT_struct
 NonHandledInterrupt	include\stm8s_it.h	41;"	prototype	signature:(void)
-NonHandledInterrupt	src\stm8s_it.c	361;"	function	signature:(void)
+NonHandledInterrupt	src\stm8s_it.c	469;"	function	signature:(void)
 OARH	include\stm8s.h	1334;"	member	struct:I2C_struct
 OARL	include\stm8s.h	1333;"	member	struct:I2C_struct
 ODR	include\stm8s.h	267;"	member	struct:GPIO_struct
@@ -1966,7 +1970,7 @@ TINY	include\stm8s.h	144;"	macro
 TLI_IRQHandler	include\stm8s_it.h	46;"	prototype	signature:(void)
 TPR	include\stm8s.h	2179;"	member	struct:__anon5
 TRAP_IRQHandler	include\stm8s_it.h	45;"	prototype	signature:(void)
-TRAP_IRQHandler	src\stm8s_it.c	373;"	function	signature:(void)
+TRAP_IRQHandler	src\stm8s_it.c	481;"	function	signature:(void)
 TRISER	include\stm8s.h	1343;"	member	struct:I2C_struct
 TRUE	include\stm8s.h	231;"	enumerator	enum:__anon1
 TSR	include\stm8s.h	2178;"	member	struct:__anon5
@@ -2283,6 +2287,7 @@ halt	include\stm8s.h	2723;"	macro
 halt	include\stm8s.h	2732;"	macro
 halt	include\stm8s.h	2742;"	macro
 idxBuffer	src\main.c	33;"	variable
+idxMode	src\stm8s_it.c	39;"	variable
 init	src\main.c	18;"	prototype	file:	signature:(void)
 init	src\main.c	95;"	function
 int16_t	include\stm8s.h	212;"	typedef
@@ -2295,6 +2300,7 @@ interrupt_vector	stm8_interrupt_vector.c	9;"	struct	file:
 led	src\led.c	3;"	variable	typeref:struct:led_state
 led_state	include\led.h	17;"	struct
 main	src\main.c	40;"	function
+modeBuffer	src\stm8s_it.c	38;"	variable
 need	src\main.c	36;"	variable
 nop	include\stm8s.h	2720;"	macro
 nop	include\stm8s.h	2729;"	macro
