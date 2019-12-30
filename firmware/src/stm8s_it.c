@@ -30,13 +30,10 @@
 #include "main.h"
 #include "led.h"
 
-__IO uint8_t Slave_Buffer_Rx[8];
-__IO uint8_t Tx_Idx = 0, Rx_Idx = 0;
-__IO uint16_t Event = 0x00;
-uint8_t reg = 0;
-
 __IO uint8_t modeBuffer[64];
 __IO uint8_t idxMode=0;
+uint8_t Rx_Idx;
+uint8_t Slave_Buffer_Rx[8];
 
 #if defined(STM8S207) || defined(STM8S007) || defined(STM8S208) || defined (STM8AF52Ax) || defined (STM8AF62Ax)
 /**
@@ -125,25 +122,29 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
 	sr2 = I2C->SR2;
 	sr3 = I2C->SR3;
 
-/* Communication error? */
+	/* Communication error? */
   if (sr2 & (I2C_SR2_WUFH | I2C_SR2_OVR |I2C_SR2_ARLO |I2C_SR2_BERR))
   {		
     I2C->CR2|= I2C_CR2_STOP;  // stop communication - release the lines
     I2C->SR2= 0;					    // clear all error flags
+		SetLED(LED_PANIC, 1);
 	}
-/* More bytes received ? */
+	
+	/* More bytes received ? */
   if ((sr1 & (I2C_SR1_RXNE | I2C_SR1_BTF)) == (I2C_SR1_RXNE | I2C_SR1_BTF))
   {
     //I2C_byte_received(I2C->DR);
-		Slave_Buffer_Rx[Rx_Idx++] = I2C_ReceiveData();
+		Slave_Buffer_Rx[Rx_Idx++] = I2C->DR;
   }
-/* Byte received ? */
+
+	/* Byte received ? */
   if (sr1 & I2C_SR1_RXNE)
   {
     //I2C_byte_received(I2C->DR);
-		Slave_Buffer_Rx[Rx_Idx++] = I2C_ReceiveData();
+		Slave_Buffer_Rx[Rx_Idx++] = I2C->DR;
   }
-/* NAK? (=end of slave transmit comm) */
+
+	/* NAK? (=end of slave transmit comm) */
   if (sr2 & I2C_SR2_AF)
   {	
     I2C->SR2 &= ~I2C_SR2_AF;	  // clear AF
@@ -153,25 +154,33 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
 		}
 		//I2C_transaction_end();
 	}
-/* Stop bit from Master  (= end of slave receive comm) */
+
+	/* Stop bit from Master  (= end of slave receive comm) */
   if (sr1 & I2C_SR1_STOPF) 
   {
     I2C->CR2 |= I2C_CR2_ACK;	  // CR2 write to clear STOPF
+		if (led.pattern == LED_OFF)
+		{
+			LEDOff();
+		}
 		//I2C_transaction_end();
 	}
-/* Slave address matched (= Start Comm) */
+
+	/* Slave address matched (= Start Comm) */
   if (sr1 & I2C_SR1_ADDR)
   {
 		Rx_Idx = 0;
 		//I2C_transaction_begin();
 	}
-/* More bytes to transmit ? */
+
+	/* More bytes to transmit ? */
   if ((sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) == (I2C_SR1_TXE | I2C_SR1_BTF))
   {
 		//I2C->DR = I2C_byte_write();
 		I2C_SendData(0x00);
   }
-/* Byte to transmit ? */
+
+	/* Byte to transmit ? */
   if (sr1 & I2C_SR1_TXE)
   {
 		if (led.pattern == LED_OFF)
@@ -181,111 +190,27 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
 		//I2C->DR = I2C_byte_write();
 		if (Rx_Idx == 0)
 		{
-			
-			I2C_SendData(((phRaw >> 8) & 0x00FF));
-			Rx_Idx = 1;
+			I2C->DR = (phRaw >> 8);
+			//I2C_SendData(((phRaw >> 8) & 0x00FF));
+			//Rx_Idx = 1;
+		}
+		else if (Rx_Idx ==1)
+		{			
+			I2C->DR = phRaw;
+			//I2C_SendData((phRaw & 0x00FF));
+			//Rx_Idx = 0;
 		}
 		else
-		{			
-			I2C_SendData((phRaw & 0x00FF));
-			Rx_Idx = 0;
+		{
+			I2C->DR = 0xFF;
+			//I2C_SendData(0);
+			//SetLED(LED_PANIC, 2);
 		}
+		Rx_Idx++;
+		
   }	
 	
-	return;
-	
-	
-	/***************************/
-	/***************************/
-	/***************************/
-  /* Read SR2 register to get I2C error */
-	reg = I2C->SR2;
-	
-  if ((reg) != 0)
-  {
-    /* Clears SR2 register */
-		I2C->CR2|= I2C_CR2_STOP;  // stop communication - release the lines
-    I2C->SR2 = 0;
-		//NACK (0x04) is expected in transmit mode when master is done
-		if (reg != 0x04)
-		{
-			SetLED(LED_PANIC, 1);
-		}
-		if (reg & 0x04)
-		{
-			I2C->SR2 &= ~I2C_SR2_AF;	  // clear AF
-			modeBuffer[idxMode++] = 9;
-			idxMode = idxMode & 0x3F;
-		}
-
-  }
-  Event = I2C_GetLastEvent();
-  switch (Event)
-  {
-      /******* Slave transmitter ******/
-      /* check on EV1 */
-    case I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED:
-      Tx_Idx = 1;
-			modeBuffer[idxMode++] = 1;
-			idxMode = idxMode & 0x3F;
-      break;
-
-      /* check on EV3 */
-    case I2C_EVENT_SLAVE_BYTE_TRANSMITTING:
-      /* Transmit data */
-			modeBuffer[idxMode++] = 2;
-			idxMode = idxMode & 0x3F;
-      I2C_SendData(0x00);
-			/*Tx_Idx--;
-			if (Tx_Idx <= 0)
-			{
-				Tx_Idx = 0;
-			}
-			*/
-      break;
-      /******* Slave receiver **********/
-      /* check on EV1*/
-    case I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED:
-			modeBuffer[idxMode++] = 3;
-			idxMode = idxMode & 0x3F;
-      break;
-
-      /* Check on EV2*/
-    case I2C_EVENT_SLAVE_BYTE_RECEIVED:
-			modeBuffer[idxMode++] = 4;
-			idxMode = idxMode & 0x3F;
-      Slave_Buffer_Rx[Rx_Idx++] = I2C_ReceiveData();
-			modeBuffer[idxMode++] = 4;
-			idxMode = idxMode & 0x3F;
-			if (Rx_Idx >= 8)
-			{
-				Rx_Idx = 0;
-			}
-			
-      break;
-
-      /* Check on EV4 */
-    case (I2C_EVENT_SLAVE_STOP_DETECTED):
-			modeBuffer[idxMode++] = 5;
-			idxMode = idxMode & 0x3F;
-			/* write to CR2 to clear STOPF flag */
-			I2C->CR2 |= I2C_CR2_ACK;
-			//SetLED(LED_BLINK, 2);
-			//TODO: [ML] Notify main app that full command received
-      break;
-
-		case (I2C_EVENT_SLAVE_ACK_FAILURE):
-			modeBuffer[idxMode++] = 6;
-			idxMode = idxMode & 0x3F;
-			SetLED(LED_PANIC, 2);
-			//TODO: [ML] What do I do here?
-			break;
-    default:
-			//modeBuffer[idxMode++] = 7;
-			//idxMode = idxMode & 0x0F;
-      break;
-  }
-	
+	return;	
 }
 
 

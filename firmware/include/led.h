@@ -7,7 +7,7 @@
 #define LED_port GPIOD
 #define LED_pin GPIO_PIN_3
 
-#define LED_PANIC 			0xAAAA
+#define LED_PANIC 			0x3333
 #define LED_ON 					0xFFFF
 #define LED_OFF					0x0000
 #define	LED_BLIP				0x0001

@@ -1,13 +1,15 @@
-src\led.c
+src\stm8s_itc.c
 src\main.c
-src\stm8s_adc1.c
+src\led.c
 src\stm8s_clk.c
+src\stm8s_adc1.c
 src\stm8s_gpio.c
 src\stm8s_i2c.c
 src\stm8s_it.c
 src\stm8s_rst.c
 src\stm8s_tim2.c
 stm8_interrupt_vector.c
+include\stm8s_itc.h
 include\led.h
 include\main.h
 include\stm8s.h
@@ -20,4 +22,3 @@ include\stm8s_it.h
 include\stm8s_rst.h
 include\stm8s_tim2.h
 c:\program files (x86)\cosmic\fse_compilers\cxstm8\hstm8\mods0.h
-c:\program files (x86)\cosmic\fse_compilers\cxstm8\hstm8\stdbool.h

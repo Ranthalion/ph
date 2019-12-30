@@ -219,7 +219,7 @@ String.6.0=2019,12,15,22,51,21
 [Root.Source Files]
 ElemType=Folder
 PathName=Source Files
-Child=Root.Source Files.src\main.c
+Child=Root.Source Files.src\led.c
 Next=Root.Include Files
 Config.0=Root.Source Files.Config.0
 Config.1=Root.Source Files.Config.1
@@ -289,6 +289,11 @@ String.3.0=
 String.4.0=
 String.5.0=
 String.6.0=2019,12,15,22,51,21
+
+[Root.Source Files.src\led.c]
+ElemType=File
+PathName=src\led.c
+Next=Root.Source Files.src\main.c
 
 [Root.Source Files.src\main.c]
 ElemType=File
@@ -661,7 +666,7 @@ String.8.0=Release
 [Root.Include Files]
 ElemType=Folder
 PathName=Include Files
-Child=Root.Include Files.include\main.h
+Child=Root.Include Files.include\led.h
 Config.0=Root.Include Files.Config.0
 Config.1=Root.Include Files.Config.1
 
@@ -730,6 +735,11 @@ String.3.0=
 String.4.0=
 String.5.0=
 String.6.0=2019,12,15,22,51,21
+
+[Root.Include Files.include\led.h]
+ElemType=File
+PathName=include\led.h
+Next=Root.Include Files.include\main.h
 
 [Root.Include Files.include\main.h]
 ElemType=File

@@ -2,6 +2,7 @@
 #include "main.h"
 #include <stdbool.h>
 #include "led.h"
+#include "stm8s_itc.h"
 
 /*
 PA1	ADC
@@ -13,27 +14,22 @@ PD4	ADDR1
 PD5	ADDR2
 */
 
-//TODO: Set up i2c
-
 void init(void);
 void clock_setup(void);
 void GPIO_setup(void);
 void ADC_setup(void);
 void I2C_setup(uint16_t address);
 void TIM2_setup(void);
-void Delay (uint16_t nCount);
 void HandleADC(void);
 void HandleTimerTick(void);
 
 volatile uint8_t state = 0;
-volatile uint16_t phRaw = 0;
+volatile uint16_t phRaw = 1111;
 
 #define BUFFER_SIZE 64
 uint16_t adcValues[BUFFER_SIZE];
 uint8_t idxBuffer = 0;
 bool bufferEmpty = true;
-
-bool need = true;
 
 uint32_t averagedValue = 0;
 
@@ -41,8 +37,8 @@ main()
 {
 	init();
 	
+	//SetLED(LED_OFF, 0);
 	SetLED(LED_PANIC, 1);
-	//SetLED(LED_BLINK, 0);
 
 	wfi(); //wait for interrupts
 	while (1)
@@ -64,13 +60,8 @@ main()
 			//Check TMR State
 			if (state & STATE_TMR_TICK)
 			{
-				HandleTimerTick();
-				if(need == true)
-				{
-					need = false;
-					//I2C_setup(0x45);
-					
-				}
+				LEDTick();
+				state &= ~(STATE_TMR_TICK);
 			}
 		}
 		
@@ -83,15 +74,6 @@ void assert_failed(u8* file, u32 line)
 	SetLED(LED_PANIC, 10);
 }
 
-void Delay(uint16_t nCount)
-{
-  /* Decrement nCount value */
-  while (nCount != 0)
-  {
-    nCount--;
-  }
-}
-
 void init()
 {
   clock_setup();
@@ -100,6 +82,8 @@ void init()
 	TIM2_setup();
 	I2C_setup(0x45);
 	
+	ITC_SetSoftwarePriority(ITC_IRQ_TIM2_OVF, ITC_PRIORITYLEVEL_2);
+	ITC_SetSoftwarePriority(ITC_IRQ_ADC1, ITC_PRIORITYLEVEL_2);
 	
 	/* Enable general interrupts */
   enableInterrupts();
@@ -115,7 +99,7 @@ void clock_setup(void)
   while(CLK_GetFlagStatus(CLK_FLAG_HSIRDY) == FALSE);
                                 
   CLK_ClockSwitchCmd(ENABLE);
-  CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV2);
+  CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
   CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);
                                 
   CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO, CLK_SOURCE_HSI, 
@@ -172,17 +156,18 @@ void I2C_setup(uint16_t address)
 	//TODO: [ML] Set appropriate parameters for slave device
 	
 	I2C_DeInit();
-	I2C_Init(100000, 
+	I2C_Init(400000, 
 					 address << 1, 
 					 I2C_DUTYCYCLE_2, 
 					 I2C_ACK_CURR, 
 					 I2C_ADDMODE_7BIT, 
 					 (CLK_GetClockFreq() / 1000000));
-
+	//I2C_StretchClockCmd(DISABLE);
+	
 	/* Enable Error Interrupt*/
   I2C_ITConfig((I2C_IT_TypeDef)(I2C_IT_ERR | I2C_IT_EVT | I2C_IT_BUF), ENABLE);
   
-	//I2C_Cmd(ENABLE);
+	I2C_Cmd(ENABLE);
 	//enableInterrupts();
 }
 
@@ -232,10 +217,4 @@ void HandleADC()
 	}
 	
 	state &= ~(STATE_ADC_READY);
-}
-
-void HandleTimerTick()
-{
-	LEDTick();
-	state &= ~(STATE_TMR_TICK);	
 }
