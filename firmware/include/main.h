@@ -15,5 +15,7 @@
 
 extern volatile uint8_t state;
 extern volatile uint16_t phRaw;
-
+extern volatile uint8_t i2cBuffer1[3];
+extern volatile uint8_t *startPoint;
+extern volatile uint8_t *currentPoint;
 #endif //__MAIN_H

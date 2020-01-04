@@ -20,7 +20,7 @@
  198       00000002      OFST:	set	2
  201                     ; 80   uint8_t Mask = 0;
  203                     ; 81   uint8_t NewPriority = 0;
- 205                     ; 85   Mask = (uint8_t)(~(uint8_t)(0x03U << (((uint8_t)IrqNum % 4U) * 2U)));
+ 205                     ; 86   Mask = (uint8_t)(~(uint8_t)(0x03U << (((uint8_t)IrqNum % 4U) * 2U)));
  207  0005 9e            	ld	a,xh
  208  0006 a403          	and	a,#3
  209  0008 48            	sll	a
@@ -36,7 +36,7 @@
  219  0014               L01:
  220  0014 43            	cpl	a
  221  0015 6b01          	ld	(OFST-1,sp),a
- 223                     ; 88   NewPriority = (uint8_t)((uint8_t)(PriorityValue) << (((uint8_t)IrqNum % 4U) * 2U));
+ 223                     ; 89   NewPriority = (uint8_t)((uint8_t)(PriorityValue) << (((uint8_t)IrqNum % 4U) * 2U));
  225  0017 7b03          	ld	a,(OFST+1,sp)
  226  0019 a403          	and	a,#3
  227  001b 48            	sll	a
@@ -51,28 +51,59 @@
  236  0025 26fc          	jrne	L61
  237  0027               L41:
  238  0027 6b02          	ld	(OFST+0,sp),a
- 240                     ; 90   switch (IrqNum)
+ 240                     ; 91   switch (IrqNum)
  242  0029 7b03          	ld	a,(OFST+1,sp)
- 243  002b a113          	cp	a,#19
- 244  002d 2610          	jrne	L701
- 247  002f               L12:
- 248                     ; 93   case ITC_IRQ_I2C:
- 248                     ; 94     ITC->ISPR5 &= Mask;
- 250  002f c67f74        	ld	a,32628
- 251  0032 1401          	and	a,(OFST-1,sp)
- 252  0034 c77f74        	ld	32628,a
- 253                     ; 95     ITC->ISPR5 |= NewPriority;
- 255  0037 c67f74        	ld	a,32628
- 256  003a 1a02          	or	a,(OFST+0,sp)
- 257  003c c77f74        	ld	32628,a
- 258                     ; 96     break;
- 260  003f               L32:
- 261                     ; 98   default:
- 261                     ; 99     break;
- 263  003f               L701:
- 264                     ; 101 }
- 267  003f 5b04          	addw	sp,#4
- 268  0041 81            	ret
- 281                     	xdef	_ITC_GetCPUCC
- 282                     	xdef	_ITC_SetSoftwarePriority
- 301                     	end
+ 244                     ; 107   default:
+ 244                     ; 108     break;
+ 245  002b a00d          	sub	a,#13
+ 246  002d 270a          	jreq	L12
+ 247  002f a006          	sub	a,#6
+ 248  0031 2718          	jreq	L32
+ 249  0033 a003          	sub	a,#3
+ 250  0035 2726          	jreq	L52
+ 251  0037 2034          	jra	L311
+ 252  0039               L12:
+ 253                     ; 93   case ITC_IRQ_TIM2_OVF:
+ 253                     ; 94 		ITC->ISPR4 &= Mask;
+ 255  0039 c67f73        	ld	a,32627
+ 256  003c 1401          	and	a,(OFST-1,sp)
+ 257  003e c77f73        	ld	32627,a
+ 258                     ; 95     ITC->ISPR4 |= NewPriority;
+ 260  0041 c67f73        	ld	a,32627
+ 261  0044 1a02          	or	a,(OFST+0,sp)
+ 262  0046 c77f73        	ld	32627,a
+ 263                     ; 96     break;
+ 265  0049 2022          	jra	L311
+ 266  004b               L32:
+ 267                     ; 98   case ITC_IRQ_I2C:
+ 267                     ; 99     ITC->ISPR5 &= Mask;
+ 269  004b c67f74        	ld	a,32628
+ 270  004e 1401          	and	a,(OFST-1,sp)
+ 271  0050 c77f74        	ld	32628,a
+ 272                     ; 100     ITC->ISPR5 |= NewPriority;
+ 274  0053 c67f74        	ld	a,32628
+ 275  0056 1a02          	or	a,(OFST+0,sp)
+ 276  0058 c77f74        	ld	32628,a
+ 277                     ; 101     break;
+ 279  005b 2010          	jra	L311
+ 280  005d               L52:
+ 281                     ; 102   case ITC_IRQ_ADC1:
+ 281                     ; 103     ITC->ISPR6 &= Mask;
+ 283  005d c67f75        	ld	a,32629
+ 284  0060 1401          	and	a,(OFST-1,sp)
+ 285  0062 c77f75        	ld	32629,a
+ 286                     ; 104     ITC->ISPR6 |= NewPriority;
+ 288  0065 c67f75        	ld	a,32629
+ 289  0068 1a02          	or	a,(OFST+0,sp)
+ 290  006a c77f75        	ld	32629,a
+ 291                     ; 105     break;
+ 293  006d               L72:
+ 294                     ; 107   default:
+ 294                     ; 108     break;
+ 296  006d               L311:
+ 297                     ; 110 }
+ 300  006d 5b04          	addw	sp,#4
+ 301  006f 81            	ret
+ 314                     	xdef	_ITC_GetCPUCC
+ 315                     	xdef	_ITC_SetSoftwarePriority
+ 334                     	end

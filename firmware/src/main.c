@@ -28,18 +28,26 @@ volatile uint16_t phRaw = 1111;
 
 #define BUFFER_SIZE 64
 uint16_t adcValues[BUFFER_SIZE];
+volatile uint8_t i2cBuffer1[3];
 uint8_t idxBuffer = 0;
 bool bufferEmpty = true;
 
 uint32_t averagedValue = 0;
 
+volatile uint8_t *startPoint;
+volatile uint8_t *currentPoint;
+
 main()
 {
 	init();
-	
+	i2cBuffer1[0] = 0x03;
+	i2cBuffer1[1] = 0x49;
+	i2cBuffer1[2] = 0x00;
 	//SetLED(LED_OFF, 0);
-	SetLED(LED_PANIC, 1);
-
+	//SetLED(LED_PANIC, 1);
+	GPIOD->ODR = 0b00011000;
+	startPoint = &i2cBuffer1[1];
+	currentPoint = startPoint;
 	wfi(); //wait for interrupts
 	while (1)
 	{
@@ -71,15 +79,15 @@ main()
 
 void assert_failed(u8* file, u32 line)
 {
-	SetLED(LED_PANIC, 10);
+	//SetLED(LED_PANIC, 10);
 }
 
 void init()
 {
   clock_setup();
   GPIO_setup();
-	ADC_setup();
-	TIM2_setup();
+	//ADC_setup();
+	//TIM2_setup();
 	I2C_setup(0x45);
 	
 	ITC_SetSoftwarePriority(ITC_IRQ_TIM2_OVF, ITC_PRIORITYLEVEL_2);
@@ -119,11 +127,12 @@ void GPIO_setup()
 {
 	//Set up LED
   GPIO_DeInit(LED_port);
-  GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_LOW_FAST);
+  GPIO_Init(LED_port, (LED_pin | GPIO_PIN_5), GPIO_MODE_OUT_PP_LOW_FAST);
+	//GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_LOW_FAST);
 	
 	//Set up ADDR
-	GPIO_Init(ADDR_port, ADDR_pin_1, GPIO_MODE_IN_PU_NO_IT);
-	GPIO_Init(ADDR_port, ADDR_pin_2, GPIO_MODE_IN_PU_NO_IT);
+	//GPIO_Init(ADDR_port, ADDR_pin_1, GPIO_MODE_IN_PU_NO_IT);
+	//GPIO_Init(ADDR_port, ADDR_pin_2, GPIO_MODE_IN_PU_NO_IT);
 	
 	//Set up  ADC
 	GPIO_Init(ADC_port, ADC_pin, GPIO_MODE_IN_FL_NO_IT);
@@ -153,10 +162,8 @@ void ADC_setup()
 
 void I2C_setup(uint16_t address)
 {
-	//TODO: [ML] Set appropriate parameters for slave device
-	
 	I2C_DeInit();
-	I2C_Init(400000, 
+	I2C_Init(100000, 
 					 address << 1, 
 					 I2C_DUTYCYCLE_2, 
 					 I2C_ACK_CURR, 
@@ -168,7 +175,6 @@ void I2C_setup(uint16_t address)
   I2C_ITConfig((I2C_IT_TypeDef)(I2C_IT_ERR | I2C_IT_EVT | I2C_IT_BUF), ENABLE);
   
 	I2C_Cmd(ENABLE);
-	//enableInterrupts();
 }
 
 void TIM2_setup(void)

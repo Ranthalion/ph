@@ -29,11 +29,52 @@
 #include "stm8s_it.h"
 #include "main.h"
 #include "led.h"
-
-__IO uint8_t modeBuffer[64];
+#define MAX_BUFFER  32
+__IO uint8_t modeBuffer[4];
 __IO uint8_t idxMode=0;
-uint8_t Rx_Idx;
+__IO uint8_t Rx_Idx=0;
 uint8_t Slave_Buffer_Rx[8];
+
+   u8 u8_My_Buffer[MAX_BUFFER];
+   u8 *u8_MyBuffp;
+   u8 MessageBegin;
+
+
+void transaction_begin(void);
+void transaction_end(void);
+void byte_received(u8 u8_RxData);
+u8 byte_write(void);
+
+// ********************** Data link function ****************************
+// * These functions must be modified according to your application neeeds *
+// * See AN document for more precision
+// **********************************************************************
+
+	void I2C_transaction_begin(void)
+	{
+		MessageBegin = TRUE;
+	}
+	void I2C_transaction_end(void)
+	{
+		//Not used in this example
+	}
+	void I2C_byte_received(u8 u8_RxData)
+	{
+		if (MessageBegin == TRUE  &&  u8_RxData < MAX_BUFFER) {
+			u8_MyBuffp= &u8_My_Buffer[u8_RxData];
+			MessageBegin = FALSE;
+		}
+    else if(u8_MyBuffp < &u8_My_Buffer[MAX_BUFFER])
+      *(u8_MyBuffp++) = u8_RxData;
+	}
+	u8 I2C_byte_write(void)
+	{
+		return 0x54;
+		if (u8_MyBuffp < &u8_My_Buffer[MAX_BUFFER])
+			return *(u8_MyBuffp++);
+		else
+			return 0x6d;
+	}
 
 #if defined(STM8S207) || defined(STM8S007) || defined(STM8S208) || defined (STM8AF52Ax) || defined (STM8AF62Ax)
 /**
@@ -59,7 +100,6 @@ uint8_t Slave_Buffer_Rx[8];
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
-	//TODO: [ML] Handle the ADC interrupt
 	state |= STATE_ADC_READY;
 	ADC1_ClearFlag(ADC1_FLAG_EOC);
 }
@@ -116,101 +156,94 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
 	static u8 sr1;					
 	static u8 sr2;
 	static u8 sr3;
-		
+
 	// save the I2C registers configuration
 	sr1 = I2C->SR1;
 	sr2 = I2C->SR2;
 	sr3 = I2C->SR3;
 
+	/* Slave address matched (= Start Comm) */
+  if (sr1 & I2C_SR1_ADDR)
+  {
+		//GPIOD->ODR &= 0b11110111;
+		Rx_Idx = 0;  //Should I put this at the stop bit instead?
+		//I2C_transaction_begin();		
+		
+	}
+
+	/* Byte to transmit ? */
+  if (sr1 & I2C_SR1_TXE)
+  {
+		//GPIOD->ODR &= 0b11011111;
+		//I2C->DR = 0x1a;
+		/*
+		if (Rx_Idx == 0)
+		{
+			I2C->DR = (phRaw >> 8);
+		}
+		else if (Rx_Idx ==1)
+		{			
+			I2C->DR = phRaw;
+		}
+		else
+		{
+			I2C->DR = 0xFF;
+		}
+		*/
+		//I2C->DR = *startPoint;
+		I2C->DR = i2cBuffer1[Rx_Idx];
+		Rx_Idx++;
+		//GPIOD->ODR = 0x08;	
+		//Rx_Idx++;
+		
+		//GPIOD->ODR |= 0b00100000;
+		//GPIOD->ODR |= 0b00101000;
+  }	
+	
 	/* Communication error? */
   if (sr2 & (I2C_SR2_WUFH | I2C_SR2_OVR |I2C_SR2_ARLO |I2C_SR2_BERR))
-  {		
+  {	
+		GPIOD->ODR = 0x00;	
+		//GPIOD->ODR = 0x00;	
     I2C->CR2|= I2C_CR2_STOP;  // stop communication - release the lines
     I2C->SR2= 0;					    // clear all error flags
-		SetLED(LED_PANIC, 1);
+		return;
 	}
+
 	
 	/* More bytes received ? */
   if ((sr1 & (I2C_SR1_RXNE | I2C_SR1_BTF)) == (I2C_SR1_RXNE | I2C_SR1_BTF))
-  {
-    //I2C_byte_received(I2C->DR);
-		Slave_Buffer_Rx[Rx_Idx++] = I2C->DR;
+  {		
+    I2C_byte_received(I2C->DR);
+		
   }
-
+	
 	/* Byte received ? */
   if (sr1 & I2C_SR1_RXNE)
-  {
-    //I2C_byte_received(I2C->DR);
-		Slave_Buffer_Rx[Rx_Idx++] = I2C->DR;
+  {		
+    I2C_byte_received(I2C->DR);		
   }
-
+	
 	/* NAK? (=end of slave transmit comm) */
   if (sr2 & I2C_SR2_AF)
-  {	
+  {		
     I2C->SR2 &= ~I2C_SR2_AF;	  // clear AF
-		if (led.pattern == LED_OFF)
-		{
-			LEDOff();
-		}
-		//I2C_transaction_end();
+		I2C_transaction_end();		
 	}
-
+	
 	/* Stop bit from Master  (= end of slave receive comm) */
   if (sr1 & I2C_SR1_STOPF) 
   {
     I2C->CR2 |= I2C_CR2_ACK;	  // CR2 write to clear STOPF
-		if (led.pattern == LED_OFF)
-		{
-			LEDOff();
-		}
-		//I2C_transaction_end();
-	}
-
-	/* Slave address matched (= Start Comm) */
-  if (sr1 & I2C_SR1_ADDR)
-  {
-		Rx_Idx = 0;
-		//I2C_transaction_begin();
+		I2C_transaction_end();		
 	}
 
 	/* More bytes to transmit ? */
   if ((sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) == (I2C_SR1_TXE | I2C_SR1_BTF))
   {
-		//I2C->DR = I2C_byte_write();
-		I2C_SendData(0x00);
+		I2C->DR = I2C_byte_write();
   }
-
-	/* Byte to transmit ? */
-  if (sr1 & I2C_SR1_TXE)
-  {
-		if (led.pattern == LED_OFF)
-		{
-			LEDToggle();
-		}
-		//I2C->DR = I2C_byte_write();
-		if (Rx_Idx == 0)
-		{
-			I2C->DR = (phRaw >> 8);
-			//I2C_SendData(((phRaw >> 8) & 0x00FF));
-			//Rx_Idx = 1;
-		}
-		else if (Rx_Idx ==1)
-		{			
-			I2C->DR = phRaw;
-			//I2C_SendData((phRaw & 0x00FF));
-			//Rx_Idx = 0;
-		}
-		else
-		{
-			I2C->DR = 0xFF;
-			//I2C_SendData(0);
-			//SetLED(LED_PANIC, 2);
-		}
-		Rx_Idx++;
-		
-  }	
-	
-	return;	
+	GPIOD->ODR |= 0b00101000;
 }
 
 

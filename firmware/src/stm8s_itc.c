@@ -80,6 +80,7 @@ void ITC_SetSoftwarePriority(ITC_Irq_TypeDef IrqNum, ITC_PriorityLevel_TypeDef P
   uint8_t Mask = 0;
   uint8_t NewPriority = 0;
   
+  
   /* Define the mask corresponding to the bits position in the SPR register */
   /* The mask is reversed in order to clear the 2 bits after more easily */
   Mask = (uint8_t)(~(uint8_t)(0x03U << (((uint8_t)IrqNum % 4U) * 2U)));
@@ -89,10 +90,18 @@ void ITC_SetSoftwarePriority(ITC_Irq_TypeDef IrqNum, ITC_PriorityLevel_TypeDef P
   
   switch (IrqNum)
   {
-		
+  case ITC_IRQ_TIM2_OVF:
+		ITC->ISPR4 &= Mask;
+    ITC->ISPR4 |= NewPriority;
+    break;
+    
   case ITC_IRQ_I2C:
     ITC->ISPR5 &= Mask;
     ITC->ISPR5 |= NewPriority;
+    break;
+  case ITC_IRQ_ADC1:
+    ITC->ISPR6 &= Mask;
+    ITC->ISPR6 |= NewPriority;
     break;
     
   default:
