@@ -16,14 +16,14 @@
   *
   *        http://www.st.com/software_license_agreement_liberty_v2
   *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   * See the License for the specific language governing permissions and
   * limitations under the License.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s_it.h"
@@ -60,12 +60,14 @@ u8 byte_write(void);
 	}
 	void I2C_byte_received(u8 u8_RxData)
 	{
+		/*
 		if (MessageBegin == TRUE  &&  u8_RxData < MAX_BUFFER) {
 			u8_MyBuffp= &u8_My_Buffer[u8_RxData];
 			MessageBegin = FALSE;
 		}
     else if(u8_MyBuffp < &u8_My_Buffer[MAX_BUFFER])
       *(u8_MyBuffp++) = u8_RxData;
+		*/
 	}
 	u8 I2C_byte_write(void)
 	{
@@ -141,7 +143,7 @@ u8 byte_write(void);
  INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 {
 	TIM2_ClearFlag(TIM2_FLAG_UPDATE);
-	state |= STATE_TMR_TICK;	
+	state |= STATE_TMR_TICK;
 }
 
 
@@ -153,7 +155,7 @@ u8 byte_write(void);
   */
 INTERRUPT_HANDLER(I2C_IRQHandler, 19)
 {
-	static u8 sr1;					
+	static u8 sr1;
 	static u8 sr2;
 	static u8 sr3;
 
@@ -165,77 +167,58 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
 	/* Slave address matched (= Start Comm) */
   if (sr1 & I2C_SR1_ADDR)
   {
-		//GPIOD->ODR &= 0b11110111;
-		Rx_Idx = 0;  //Should I put this at the stop bit instead?
-		//I2C_transaction_begin();		
-		
+		Rx_Idx = 0;
 	}
 
 	/* Byte to transmit ? */
   if (sr1 & I2C_SR1_TXE)
   {
-		//GPIOD->ODR &= 0b11011111;
-		//I2C->DR = 0x1a;
-		/*
-		if (Rx_Idx == 0)
-		{
-			I2C->DR = (phRaw >> 8);
-		}
-		else if (Rx_Idx ==1)
-		{			
-			I2C->DR = phRaw;
-		}
-		else
-		{
-			I2C->DR = 0xFF;
-		}
-		*/
-		//I2C->DR = *startPoint;
 		I2C->DR = i2cBuffer1[Rx_Idx];
 		Rx_Idx++;
-		//GPIOD->ODR = 0x08;	
-		//Rx_Idx++;
-		
-		//GPIOD->ODR |= 0b00100000;
-		//GPIOD->ODR |= 0b00101000;
-  }	
+  }
+
+	if (led.pattern == LED_OFF)
+	{
+		GPIOD->ODR = 0x00;
+	}
 	
 	/* Communication error? */
   if (sr2 & (I2C_SR2_WUFH | I2C_SR2_OVR |I2C_SR2_ARLO |I2C_SR2_BERR))
-  {	
-		GPIOD->ODR = 0x00;	
-		//GPIOD->ODR = 0x00;	
-    I2C->CR2|= I2C_CR2_STOP;  // stop communication - release the lines
-    I2C->SR2= 0;					    // clear all error flags
-		return;
+  {
+    I2C->CR2 |= I2C_CR2_STOP;  // stop communication - release the lines
+    I2C->CR2 |= I2C_CR2_ACK;	  // CR2 write to clear STOPF ????
+    I2C->SR2 = 0;					    // clear all error flags
+		SetLED(LED_PANIC, 2);
+		WWDG->CR = 0x80;
 	}
 
-	
+
 	/* More bytes received ? */
   if ((sr1 & (I2C_SR1_RXNE | I2C_SR1_BTF)) == (I2C_SR1_RXNE | I2C_SR1_BTF))
-  {		
-    I2C_byte_received(I2C->DR);
-		
+  {
+		Slave_Buffer_Rx[0] = I2C->DR;
+    //I2C_byte_received(I2C->DR);
   }
-	
+
 	/* Byte received ? */
   if (sr1 & I2C_SR1_RXNE)
-  {		
-    I2C_byte_received(I2C->DR);		
+  {
+    //I2C_byte_received(I2C->DR);
+		Slave_Buffer_Rx[0] = I2C->DR;
   }
-	
+
 	/* NAK? (=end of slave transmit comm) */
   if (sr2 & I2C_SR2_AF)
-  {		
+  {
     I2C->SR2 &= ~I2C_SR2_AF;	  // clear AF
-		I2C_transaction_end();		
+		//I2C_transaction_end();
 	}
-	
+
 	/* Stop bit from Master  (= end of slave receive comm) */
-  if (sr1 & I2C_SR1_STOPF) 
+  if (sr1 & I2C_SR1_STOPF)
   {
     I2C->CR2 |= I2C_CR2_ACK;	  // CR2 write to clear STOPF
-		I2C_transaction_end();		
+		//I2C_transaction_end();
 	}
 
 	/* More bytes to transmit ? */
@@ -243,7 +226,12 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
   {
 		I2C->DR = I2C_byte_write();
   }
-	GPIOD->ODR |= 0b00101000;
+	
+	if (led.pattern == LED_OFF)
+	{
+		GPIOD->ODR |= 0x08;
+	}
+	
 }
 
 
@@ -476,7 +464,7 @@ INTERRUPT_HANDLER(TLI_IRQHandler, 0)
   * @retval
   * None
   */
-INTERRUPT_HANDLER(AWU_IRQHandler, 1)	
+INTERRUPT_HANDLER(AWU_IRQHandler, 1)
 {
   /* In order to detect unexpected events during development,
      it is recommended to set a breakpoint on the following instruction.
