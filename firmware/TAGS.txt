@@ -1141,7 +1141,7 @@ INTERRUPT_HANDLER	include\stm8s.h	2760;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2749;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2754;"	macro
 INTERRUPT_HANDLER_TRAP	include\stm8s.h	2763;"	macro
-INTERRUPT_HANDLER_TRAP	src\stm8s_it.c	442;"	function
+INTERRUPT_HANDLER_TRAP	src\stm8s_it.c	440;"	function
 IN_RAM	include\stm8s.h	171;"	macro
 IN_RAM	include\stm8s.h	173;"	macro
 IN_RAM	include\stm8s.h	175;"	macro
@@ -1315,7 +1315,7 @@ NOPT4	include\stm8s.h	1594;"	member	struct:OPT_struct
 NOPT5	include\stm8s.h	1596;"	member	struct:OPT_struct
 NOPT7	include\stm8s.h	1600;"	member	struct:OPT_struct
 NonHandledInterrupt	include\stm8s_it.h	41;"	prototype	signature:(void)
-NonHandledInterrupt	src\stm8s_it.c	417;"	function	signature:(void)
+NonHandledInterrupt	src\stm8s_it.c	415;"	function	signature:(void)
 OARH	include\stm8s.h	1334;"	member	struct:I2C_struct
 OARL	include\stm8s.h	1333;"	member	struct:I2C_struct
 ODR	include\stm8s.h	267;"	member	struct:GPIO_struct
@@ -1982,7 +1982,7 @@ TINY	include\stm8s.h	144;"	macro
 TLI_IRQHandler	include\stm8s_it.h	46;"	prototype	signature:(void)
 TPR	include\stm8s.h	2179;"	member	struct:__anon7
 TRAP_IRQHandler	include\stm8s_it.h	45;"	prototype	signature:(void)
-TRAP_IRQHandler	src\stm8s_it.c	429;"	function	signature:(void)
+TRAP_IRQHandler	src\stm8s_it.c	427;"	function	signature:(void)
 TRISER	include\stm8s.h	1343;"	member	struct:I2C_struct
 TRUE	include\stm8s.h	231;"	enumerator	enum:__anon3
 TSR	include\stm8s.h	2178;"	member	struct:__anon7
@@ -2302,7 +2302,7 @@ halt	include\stm8s.h	2742;"	macro
 i2cBuffer1	src\main.c	20;"	variable
 idxBuffer	src\main.c	21;"	variable
 idxMode	src\stm8s_it.c	34;"	variable
-init	src\main.c	118;"	function
+init	src\main.c	117;"	function
 init	src\main.c	7;"	prototype	file:	signature:(void)
 int16_t	include\stm8s.h	212;"	typedef
 int32_t	include\stm8s.h	213;"	typedef

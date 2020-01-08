@@ -8,5 +8,5 @@ Filename=ph-firmware.stp
 Dependencies=
 [Options]
 ActiveProject=ph-firmware
-ActiveConfig=Release
+ActiveConfig=Debug
 AddSortedElements=0

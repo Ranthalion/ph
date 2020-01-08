@@ -45,7 +45,7 @@ main()
 	/* Enable general interrupts */
   enableInterrupts();
 	
-		GPIOD->ODR = 0x08;
+	GPIOD->ODR = 0x08;
 	//Set up ADC and Timer
 	init();
 	
@@ -92,7 +92,7 @@ void assert_failed(u8* file, u32 line)
 
 void InitI2C()
 {
-	uint8_t address = 0x45;
+	uint8_t address = 0x42;
 	uint8_t addressOffset = 0;
 	
 	// Init GPIO for I2C use
@@ -102,8 +102,8 @@ void InitI2C()
 	GPIOB->CR2 &= ~0x30;
 	
 	//Determine I2C address
-	addressOffset = (GPIOD->IDR && 0x30) >> 4;
-	address = address - addressOffset;
+	addressOffset = (GPIOD->IDR & 0x30) >> 4;
+	address += addressOffset;
 	
 	//Set up I2C
 	I2C->CR1 |= 0x01;  						//Enable I2C peripheral
@@ -111,9 +111,7 @@ void InitI2C()
 	I2C->FREQR = 16; 	 						// Set I2C Freq value (16MHz)
 	I2C->OARL = (address << 1) ;	// set address
 	I2C->OARH = 0x40;							// Set 7bit address mode
-	I2C->ITR	= 0x07;							// all I2C interrupt enable  
-	
-	
+	I2C->ITR	= 0x07;							// all I2C interrupt enable
 }
 
 void init()
@@ -121,6 +119,7 @@ void init()
 	//TODO: [ML] Consider changing all pins to input with pull up.
 	//Set PORTC input pullup 
 	//Set PA2,3 input pullup
+	
 	ITC_SetSoftwarePriority(ITC_IRQ_TIM2_OVF, ITC_PRIORITYLEVEL_2);
 	ITC_SetSoftwarePriority(ITC_IRQ_ADC1, ITC_PRIORITYLEVEL_2);
 	

@@ -12,7 +12,7 @@ Count=0
 ProgramEvenIfBlank=0
 [PROGRAM MEMORY]
 Count=1
-File0=D:\Projects\ph\firmware\Release\ph-firmware.s19
+File0=D:\Projects\ph\firmware\Debug\ph-firmware.s19
 ProgramEvenIfBlank=0
 [OPTION BYTE]
 Count=1
